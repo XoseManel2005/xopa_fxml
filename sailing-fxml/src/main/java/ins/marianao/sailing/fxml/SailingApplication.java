@@ -45,7 +45,7 @@ public class SailingApplication extends Application {
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
 			primaryStage.setScene(scene);
-			
+	        
 			// primaryStage.setResizable(false);
 			primaryStage.setTitle(ResourceManager.getInstance().getText("fxml.text.app.title"));
 			primaryStage.setMinWidth(1100);

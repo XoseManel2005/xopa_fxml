@@ -136,14 +136,24 @@ public class ControllerMenu implements Initializable {
 	 */
 	@FXML
 	public void tripsMenuClick() {
-		try {
-			// TODO Open trips view. Remove empty view 
-			BorderPane vista = new BorderPane();
+		if (ResourceManager.getInstance().isAdmin()) { 
+			try {
+				BorderPane vista = (BorderPane)FXMLLoader.load(getClass().getResource("ViewTripsAdmin.fxml"), ResourceManager.getInstance().getTranslationBundle());
 
-			this.loadView(vista);
-		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+				this.loadView(vista);
+			} catch (Exception e) {
+				ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}
+		} else {
+			try {
+				BorderPane vista = (BorderPane)FXMLLoader.load(getClass().getResource("ViewTripsTypes.fxml"), ResourceManager.getInstance().getTranslationBundle());
+
+				this.loadView(vista);
+			} catch (Exception e) {
+				ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}
 		}
+		
 	}
 
 	
