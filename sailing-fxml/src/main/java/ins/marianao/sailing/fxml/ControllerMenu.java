@@ -9,12 +9,20 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import com.itextpdf.styledxmlparser.exceptions.StyledXMLParserException;
+
+import cat.institutmarianao.sailing.ws.model.Admin;
+import cat.institutmarianao.sailing.ws.model.Client;
 import cat.institutmarianao.sailing.ws.model.User;
+import cat.institutmarianao.sailing.ws.model.User.Role;
 import ins.marianao.sailing.fxml.exception.OnFailedEventHandler;
 import ins.marianao.sailing.fxml.manager.ResourceManager;
 import ins.marianao.sailing.fxml.services.ServiceAuthenticate;
+import ins.marianao.sailing.fxml.services.ServiceSaveBase;
+import ins.marianao.sailing.fxml.services.ServiceSaveUser;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -165,7 +173,7 @@ public class ControllerMenu implements Initializable {
 	 */
 	@FXML
 	public void newUserMenuClick(ActionEvent event) {
-		this.openUserForm(null);
+		this.openUserForm(null, true);
 	}
 
 	/**
@@ -233,7 +241,7 @@ public class ControllerMenu implements Initializable {
 	 */
 	@FXML
 	public void editProfileMenuClick(ActionEvent event) {
-		this.openUserForm(ResourceManager.getInstance().getCurrentUser());
+		this.openUserForm(ResourceManager.getInstance().getCurrentUser(), false);
 	}
 
 	/**
@@ -293,6 +301,67 @@ public class ControllerMenu implements Initializable {
 			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.login"), e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 	}
+	
+	public void signin(String username, String password, String confirm, String name, Integer phone, User.Role role, boolean isUpdating) {
+	    try {
+	    	
+	    	if (!password.equals(confirm)) {
+	    		ControllerMenu.showError("Registro fallido", "Las contraseñas deben coincidir.", "");
+                return;
+			}
+	    	
+	        User newUser;
+	        
+	        if (role == User.Role.ADMIN) {  //preguntar esto, poner texto en password y confirm, hacer que aparzcan cosas distintas si es admin o cliente
+	        	newUser = Admin.builder()
+	                           .username(username)
+	                           .password(password)
+	                           .role(role)
+	                           .build();
+	        } else if (role == User.Role.CLIENT) { 
+	            newUser = Client.builder()
+	                           .username(username)
+	                           .password(password)
+	                           .fullName(name)
+	                           .phone(phone)
+	                           .role(role)
+	                           .build();
+	        } else {
+	            ControllerMenu.showError("Error en el registro", "Rol no válido: " + role, "");
+	            return;
+	        }
+
+	        final ServiceSaveUser signin = new ServiceSaveUser(newUser, isUpdating);
+
+	        signin.setOnSucceeded(event -> {
+	            User signedUser = signin.getValue();
+
+	            if (signedUser == null) {
+	                ControllerMenu.showError("Registro fallido", "No se pudo registrar el usuario.", "");
+	                return;
+	            }
+
+	            ResourceManager.getInstance().setCurrentUser(signedUser);
+
+	            loginMenuClick();
+	        });
+
+
+	        signin.setOnFailed(event -> {
+	            Throwable exception = signin.getException();
+	            String errorMessage = (exception != null) ? exception.getMessage() : "Error desconocido";
+	            ControllerMenu.showError("Error en el registro", errorMessage, "");
+	        });
+
+	        signin.start();
+
+	    } catch (Exception e) {
+	        ControllerMenu.showError("Error en el registro", e.getMessage(), ExceptionUtils.getStackTrace(e));
+	    }
+	}
+
+
+
 
 	public void enableMenu() {
 		this.mnTrips.setVisible(true);
@@ -347,17 +416,20 @@ public class ControllerMenu implements Initializable {
 		return false;
 	}
 
-	public void openUserForm(User user) {
+	public void openUserForm(User user, boolean isNewUser) {
 		try {
-			// TODO Load form user view and load user profile when not null
-			
-			/*FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewFormUser.fxml"), ResourceManager.getInstance().getTranslationBundle());
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewFormUser.fxml"), ResourceManager.getInstance().getTranslationBundle());
 			BorderPane vista = (BorderPane)loader.load();
 
 			ControllerFormUser controllerFormUser = loader.getController();
-			controllerFormUser.loadUserProfile(user);
 			
-			this.loadView(vista);*/
+			if (isNewUser) {
+	            controllerFormUser.prepareForNewUser(); //nuevo registro
+	        } else {
+	            controllerFormUser.loadUserProfile(user);  //cargar perfil
+	        }
+			
+			this.loadView(vista);
 		} catch (Exception e) {
 			e.printStackTrace();
 			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));

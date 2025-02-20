@@ -165,7 +165,7 @@ public class ControllerUsersDirectory extends AbstractControllerPDF {
 											new Image(getClass().getResourceAsStream("resources/view-details.png")) ) {
 			@Override
 			public void buttonAction(User user) {
-				ResourceManager.getInstance().getMenuController().openUserForm(user);
+				ResourceManager.getInstance().getMenuController().openUserForm(user, false);
 			}
 		});
 		

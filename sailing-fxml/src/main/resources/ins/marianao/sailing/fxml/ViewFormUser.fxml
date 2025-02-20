@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<BorderPane fx:id="viewSigninForm" prefHeight="540.0" prefWidth="900.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ins.marianao.sailing.fxml.ControllerFormUser">
+	<center>
+      <AnchorPane styleClass="centerregion">
+         <children>
+            <GridPane hgap="10.0" prefHeight="482.0" prefWidth="820.0" vgap="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="20.0">
+              <columnConstraints>
+                <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
+                <ColumnConstraints hgrow="NEVER" maxWidth="552.0000061035156" />
+                  <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label styleClass="title" text="%fxml.text.formUser.title" GridPane.columnIndex="1" />
+                  <ComboBox fx:id="cmbRole" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <HBox prefHeight="40.0" prefWidth="521.0" styleClass="input-group" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                     <children>
+                        <Label styleClass="label-large" text="%fxml.text.formUser.username.lbl" />
+                        <TextField fx:id="txtUsername" promptText="%fxml.text.formUser.username" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+                  <Button mnemonicParsing="false" onAction="#SignClick" prefHeight="52.0" prefWidth="523.0" text="%fxml.text.formUser.submit" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                  <HBox prefHeight="40.0" prefWidth="521.0" styleClass="input-group" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                     <children>
+                        <Label styleClass="label-large" text="%fxml.text.formUser.password.lbl" />
+                        <PasswordField fx:id="pfPassword" prefWidth="378.0" promptText="%fxml.text.formUser.password" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="40.0" prefWidth="521.0" styleClass="input-group" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                     <children>
+                        <Label styleClass="label-large" text="%fxml.text.formUser.password.confirm.lbl" />
+                        <PasswordField fx:id="pfConfirm" prefWidth="378.0" promptText="%fxml.text.formUser.password.confirm" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="40.0" prefWidth="521.0" styleClass="input-group" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                     <children>
+                        <Label styleClass="label-large" text="%fxml.text.formUser.fullname.lbl" />
+                        <TextField fx:id="txtName" promptText="%fxml.text.formUser.fullname" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="40.0" prefWidth="521.0" styleClass="input-group" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                     <children>
+                        <Label styleClass="label-large" text="%fxml.text.formUser.phone.lbl" />
+                        <TextField fx:id="txtPhone" promptText="%fxml.text.formUser.phone" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+               </children>
+            </GridPane>
+         </children>
+      </AnchorPane>
+	</center>
+	</BorderPane>

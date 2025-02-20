@@ -15,8 +15,8 @@ import javafx.concurrent.Task;
 
 public abstract class ServiceSaveBase<T> extends Service<T>{
 
-	public static final String POST = "POST";
-	public static final String PUT = "PUT";
+	public static final String POST = "POST"; //add
+	public static final String PUT = "PUT"; //update
 
 	public enum Method {
 		POST, PUT
