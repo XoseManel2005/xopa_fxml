@@ -16,6 +16,7 @@ import com.itextpdf.styledxmlparser.exceptions.StyledXMLParserException;
 
 import cat.institutmarianao.sailing.ws.model.Admin;
 import cat.institutmarianao.sailing.ws.model.Client;
+import cat.institutmarianao.sailing.ws.model.Trip;
 import cat.institutmarianao.sailing.ws.model.User;
 import cat.institutmarianao.sailing.ws.model.User.Role;
 import ins.marianao.sailing.fxml.exception.OnFailedEventHandler;
@@ -33,6 +34,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -49,7 +51,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Pair;
 
 public class ControllerMenu implements Initializable {
@@ -71,6 +75,7 @@ public class ControllerMenu implements Initializable {
 	@FXML private Menu mnLogin;
 	@FXML private MenuItem mnItLogin;
 	@FXML private MenuItem mnItRegister;
+	private Window stage;
 
 
 	/**
@@ -434,6 +439,37 @@ public class ControllerMenu implements Initializable {
 			e.printStackTrace();
 			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+	}
+	
+	public void openTripReschedule(Trip trip) {
+	    try {
+	        // Crear nuevo Stage
+	        Stage dialogStage = new Stage();
+	        
+	        // Configurar el modo modal
+	        dialogStage.initModality(Modality.APPLICATION_MODAL);
+	        dialogStage.initOwner(this.stage); // Asignar propietario
+	        
+	        // Cargar el FXML
+	        FXMLLoader loader = new FXMLLoader(
+	            getClass().getResource("ViewReschedulingTrip.fxml"),
+	            ResourceManager.getInstance().getTranslationBundle()
+	        );
+	        
+	        BorderPane vista = (BorderPane) loader.load();
+	        Scene scene = new Scene(vista);
+	        
+	        // Configurar la escena y mostrar
+	        dialogStage.setScene(scene);
+	        dialogStage.showAndWait(); // Esperar hasta que se cierre
+	        
+	    } catch (Exception e) {
+	        ControllerMenu.showError(
+	            ResourceManager.getInstance().getText("error.menu.view.opening"),
+	            e.getMessage(),
+	            ExceptionUtils.getStackTrace(e)
+	        );
+	    }
 	}
 
 	public static Button addIconToButton(Button button, Image image, int size) {

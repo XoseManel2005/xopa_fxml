@@ -360,7 +360,7 @@ public class ControllerViewTripsAdmin implements Initializable {
 											new Image(getClass().getResourceAsStream("resources/reschedule.png")) ) {
 			@Override
 			public void buttonAction(Trip trip) {
-				//ResourceManager.getInstance().getMenuController().openUserForm(trip);
+				ResourceManager.getInstance().getMenuController().openTripReschedule(trip);
 			}
 		});
 		

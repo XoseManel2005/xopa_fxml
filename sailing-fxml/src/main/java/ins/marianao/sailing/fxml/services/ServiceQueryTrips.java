@@ -29,7 +29,9 @@ public class ServiceQueryTrips extends ServiceQueryBase<Trip> {
     private Date from;
     private Date to;
 
-    private static final String PATH_QUERY_ALL = "/trips/find/all"; // Asegúrate de que coincida con el servidor
+    public static final String PATH_QUERY_ALL = "/trips/find/all"; // Asegúrate de que coincida con el servidor
+    public static final String PATH_QUERY_UPDATE = "trips"; // Asegúrate de que coincida con el servidor
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public ServiceQueryTrips(Status[] status, Category[] categories, String clientName, Date from, Date to) {
