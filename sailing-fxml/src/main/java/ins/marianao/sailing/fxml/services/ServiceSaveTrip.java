@@ -1,16 +1,20 @@
 package ins.marianao.sailing.fxml.services;
 
+import cat.institutmarianao.sailing.ws.model.Action;
+import cat.institutmarianao.sailing.ws.model.Rescheduling;
 import cat.institutmarianao.sailing.ws.model.Trip;
 import cat.institutmarianao.sailing.ws.model.User;
 import ins.marianao.sailing.fxml.manager.ResourceManager;
 
-public class ServiceSaveTrip extends ServiceSaveBase<Trip>{
+public class ServiceSaveTrip extends ServiceSaveBase<Action>{
 
-	private static final String PATH_UPDATE= "update";
+	private static final String PATH_UPDATE= "/save/action";
 
-    public ServiceSaveTrip(Trip trip) throws Exception {
+    public ServiceSaveTrip(Action newAction) throws Exception {
     	
-        super(trip, Trip.class, new String[]{ServiceQueryTrips.PATH_QUERY_UPDATE, PATH_UPDATE}, Method.POST, shouldRequireAuth()); //true funciona crear admin pero no funciona sign in sin iniciar sesion
+        super(newAction, Action.class, new String[]{
+        		ServiceQueryTrips.PATH_QUERY_UPDATE, PATH_UPDATE
+        		}, Method.POST, shouldRequireAuth());
     }
     
     private static boolean shouldRequireAuth() {

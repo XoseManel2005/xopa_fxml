@@ -283,7 +283,7 @@ public class ControllerViewTripsAdmin implements Initializable {
 		});
 		
 //		Columna Departure
-		SimpleDateFormat sdf2 = new SimpleDateFormat("mm:HH");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
 		this.colDeparture.setMinWidth(50);
 		this.colDeparture.setMaxWidth(Double.MAX_VALUE);
 		this.colDeparture.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Trip, Date>, ObservableValue<Date>>() {
@@ -334,11 +334,7 @@ public class ControllerViewTripsAdmin implements Initializable {
 			@Override
 			public void buttonAction(Trip trip) {
 				try {
-					boolean result = ControllerMenu.showConfirm(ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.title"), 
-																	ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.text"));
-					if (result) {
-						//deleteUsuari(usuari);
-					}
+					ResourceManager.getInstance().getMenuController().openTripCancel(trip);
 				} catch (Exception e) {
 					ControllerMenu.showError(resource.getString("error.viewUsers.delete"), e.getMessage(), ExceptionUtils.getStackTrace(e));
 				}
@@ -379,14 +375,14 @@ public class ControllerViewTripsAdmin implements Initializable {
 											new Image(getClass().getResourceAsStream("resources/done.png")) ) {
 			@Override
 			public void buttonAction(Trip trip) {
-				//ResourceManager.getInstance().getMenuController().openUserForm(trip);
+				ResourceManager.getInstance().getMenuController().openTripConfirm(trip);
 			}
 		});
 		
 		
     }
 
-    private void reloadTrips() {
+    public void reloadTrips() {
         // Obtener los valores seleccionados de los ComboBox y DatePicker
         Category category = cmbCategory.getValue();
         Status status = cmbStatus.getValue();

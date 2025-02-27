@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.itextpdf.styledxmlparser.exceptions.StyledXMLParserException;
@@ -57,26 +56,42 @@ import javafx.stage.Window;
 import javafx.util.Pair;
 
 public class ControllerMenu implements Initializable {
-	@FXML private BorderPane appRootPane;
-	@FXML private AnchorPane portviewPane;
+	@FXML
+	private BorderPane appRootPane;
+	@FXML
+	private AnchorPane portviewPane;
 
-	@FXML private MenuBar menuBar;
-	@FXML private Menu mnTrips;
-	@FXML private MenuItem mnItBooking;
-	@FXML private MenuItem mnItTrips;
-	@FXML private Menu mnUsers;
-	@FXML private MenuItem mnItAddUser;
-	@FXML private MenuItem mnItUserDirectory;
-	@FXML private MenuItem mnItImport;
-	@FXML private MenuItem mnItExport;
-	@FXML private Menu mnProfile;
-	@FXML private MenuItem mnItEditProfile;
-	@FXML private MenuItem mnItLogoff;
-	@FXML private Menu mnLogin;
-	@FXML private MenuItem mnItLogin;
-	@FXML private MenuItem mnItRegister;
+	@FXML
+	private MenuBar menuBar;
+	@FXML
+	private Menu mnTrips;
+	@FXML
+	private MenuItem mnItBooking;
+	@FXML
+	private MenuItem mnItTrips;
+	@FXML
+	private Menu mnUsers;
+	@FXML
+	private MenuItem mnItAddUser;
+	@FXML
+	private MenuItem mnItUserDirectory;
+	@FXML
+	private MenuItem mnItImport;
+	@FXML
+	private MenuItem mnItExport;
+	@FXML
+	private Menu mnProfile;
+	@FXML
+	private MenuItem mnItEditProfile;
+	@FXML
+	private MenuItem mnItLogoff;
+	@FXML
+	private Menu mnLogin;
+	@FXML
+	private MenuItem mnItLogin;
+	@FXML
+	private MenuItem mnItRegister;
 	private Window stage;
-
 
 	/**
 	 * Initializes the controller class.
@@ -85,8 +100,6 @@ public class ControllerMenu implements Initializable {
 	public void initialize(URL url, ResourceBundle resource) {
 		this.logOff();
 	}
-
-
 
 	/**
 	 * Called when Logoff menuItem is fired.
@@ -98,7 +111,7 @@ public class ControllerMenu implements Initializable {
 
 		System.exit(0);
 	}
-	
+
 	/**
 	 * Called when Logoff menuItem is fired.
 	 *
@@ -117,15 +130,16 @@ public class ControllerMenu implements Initializable {
 	@FXML
 	public void loginMenuClick() {
 		try {
-			BorderPane vista = (BorderPane)FXMLLoader.load(getClass().getResource("ViewFormLogin.fxml"), ResourceManager.getInstance().getTranslationBundle());
+			BorderPane vista = (BorderPane) FXMLLoader.load(getClass().getResource("ViewFormLogin.fxml"),
+					ResourceManager.getInstance().getTranslationBundle());
 
 			this.loadView(vista);
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
-	
-	
+
 	/**
 	 * Called when Booking menuItem is fired.
 	 *
@@ -134,12 +148,13 @@ public class ControllerMenu implements Initializable {
 	@FXML
 	public void bookingMenuClick() {
 		try {
-			// TODO Open trip types view. Remove empty view 
+			// TODO Open trip types view. Remove empty view
 			BorderPane vista = new BorderPane();
 
 			this.loadView(vista);
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
 
@@ -149,27 +164,29 @@ public class ControllerMenu implements Initializable {
 	 */
 	@FXML
 	public void tripsMenuClick() {
-		if (ResourceManager.getInstance().isAdmin()) { 
+		if (ResourceManager.getInstance().isAdmin()) {
 			try {
-				BorderPane vista = (BorderPane)FXMLLoader.load(getClass().getResource("ViewTripsAdmin.fxml"), ResourceManager.getInstance().getTranslationBundle());
+				BorderPane vista = (BorderPane) FXMLLoader.load(getClass().getResource("ViewTripsAdmin.fxml"),
+						ResourceManager.getInstance().getTranslationBundle());
 
 				this.loadView(vista);
 			} catch (Exception e) {
-				ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+				ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"),
+						e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
 		} else {
 			try {
-				BorderPane vista = (BorderPane)FXMLLoader.load(getClass().getResource("ViewTripsTypes.fxml"), ResourceManager.getInstance().getTranslationBundle());
+				BorderPane vista = (BorderPane) FXMLLoader.load(getClass().getResource("ViewTripsTypes.fxml"),
+						ResourceManager.getInstance().getTranslationBundle());
 
 				this.loadView(vista);
 			} catch (Exception e) {
-				ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+				ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"),
+						e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
 		}
-		
-	}
 
-	
+	}
 
 	/**
 	 * Called when New User or Register menuItem is fired.
@@ -189,15 +206,17 @@ public class ControllerMenu implements Initializable {
 	@FXML
 	public void usersDirectoryMenuClick(ActionEvent event) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewUsersDirectory.fxml"), ResourceManager.getInstance().getTranslationBundle());
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewUsersDirectory.fxml"),
+					ResourceManager.getInstance().getTranslationBundle());
 			BorderPane vista = (BorderPane) loader.load();
 
 			this.loadView(vista);
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
-	
+
 	/**
 	 * Called when Import users menuItem is fired.
 	 *
@@ -206,18 +225,18 @@ public class ControllerMenu implements Initializable {
 	@FXML
 	public void importUsersMenuClick(ActionEvent event) {
 		try {
-			File file = this.openFileChooser(ResourceManager.getInstance().getText("error.menu.file.open"), true); 
-			
+			File file = this.openFileChooser(ResourceManager.getInstance().getText("error.menu.file.open"), true);
+
 			if (file != null) {
-				//SortedSet<User> imported = ResourceManager.getInstance().importUsers(file);
+				// SortedSet<User> imported = ResourceManager.getInstance().importUsers(file);
 
 				// TODO Persist imported users
 			}
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.import"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.import"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
-	
 
 	/**
 	 * Called when Export menuItem is fired.
@@ -227,18 +246,19 @@ public class ControllerMenu implements Initializable {
 	@FXML
 	public void exportUsersMenuClick(ActionEvent event) {
 		try {
-			File file = this.openFileChooser(ResourceManager.getInstance().getText("error.menu.file.write"), false); 
-			
+			File file = this.openFileChooser(ResourceManager.getInstance().getText("error.menu.file.write"), false);
+
 			if (file != null) {
 				// TODO Export all users
-				
+
 				// ResourceManager.getInstance().exportUsers(file, toExport);
 			}
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.export"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.export"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
-	
+
 	/**
 	 * Called when Edit Profile menuItem is fired.
 	 *
@@ -261,10 +281,11 @@ public class ControllerMenu implements Initializable {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("About ...");
 		alert.setHeaderText(null);
-		alert.setContentText("Copyright@" + Calendar.getInstance(new Locale("CA","ES")).get(Calendar.YEAR) + "\nÀlex Macia");
+		alert.setContentText(
+				"Copyright@" + Calendar.getInstance(new Locale("CA", "ES")).get(Calendar.YEAR) + "\nÀlex Macia");
 		alert.showAndWait();
 	}
-	
+
 	private void logOff() {
 		try {
 			ResourceManager.getInstance().setCurrentUser(null); // Logoff
@@ -272,108 +293,101 @@ public class ControllerMenu implements Initializable {
 			// TODO Open trip types view
 
 			this.logoffMenu();
-			
+
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
-	
+
 	public void login(String username, String password) {
 		try {
 			final ServiceAuthenticate login = new ServiceAuthenticate(username, password);
-			
+
 			login.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 
-	            @Override
-	            public void handle(WorkerStateEvent t) {
-	            	Pair<User, String> loginResponse = login.getValue();
-	    			
-	            	ResourceManager.getInstance().setCurrentUser(loginResponse.getKey()); // Login user
-	            	ResourceManager.getInstance().setCurrentToken(loginResponse.getValue()); // Token
+				@Override
+				public void handle(WorkerStateEvent t) {
+					Pair<User, String> loginResponse = login.getValue();
 
-	            	enableMenu();
-	            	
-	            	if (ResourceManager.getInstance().isAdmin()) tripsMenuClick();
-	            	else bookingMenuClick();
-	            }
-	        });
-			
+					ResourceManager.getInstance().setCurrentUser(loginResponse.getKey()); // Login user
+					ResourceManager.getInstance().setCurrentToken(loginResponse.getValue()); // Token
+
+					enableMenu();
+
+					if (ResourceManager.getInstance().isAdmin())
+						tripsMenuClick();
+					else
+						bookingMenuClick();
+				}
+			});
+
 			login.setOnFailed(new OnFailedEventHandler(ResourceManager.getInstance().getText("error.menu.login")));
-			
-			login.start();			
+
+			login.start();
 
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.login"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.login"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
-	
-	public void signin(String username, String password, String confirm, String name, Integer phone, User.Role role, boolean isUpdating) {
-	    try {
-	    	
-	    	if (!password.equals(confirm)) {
-	    		ControllerMenu.showError("Registro fallido", "Las contraseñas deben coincidir.", "");
-                return;
+
+	public void signin(String username, String password, String confirm, String name, Integer phone, User.Role role,
+			boolean isUpdating) {
+		try {
+
+			if (!password.equals(confirm)) {
+				ControllerMenu.showError("Registro fallido", "Las contraseñas deben coincidir.", "");
+				return;
 			}
-	    	
-	        User newUser;
-	        
-	        if (role == User.Role.ADMIN) {  //preguntar esto, poner texto en password y confirm, hacer que aparzcan cosas distintas si es admin o cliente
-	        	newUser = Admin.builder()
-	                           .username(username)
-	                           .password(password)
-	                           .role(role)
-	                           .build();
-	        } else if (role == User.Role.CLIENT) { 
-	            newUser = Client.builder()
-	                           .username(username)
-	                           .password(password)
-	                           .fullName(name)
-	                           .phone(phone)
-	                           .role(role)
-	                           .build();
-	        } else {
-	            ControllerMenu.showError("Error en el registro", "Rol no válido: " + role, "");
-	            return;
-	        }
 
-	        final ServiceSaveUser signin = new ServiceSaveUser(newUser, isUpdating);
+			User newUser;
 
-	        signin.setOnSucceeded(event -> {
-	            User signedUser = signin.getValue();
+			if (role == User.Role.ADMIN) { // preguntar esto, poner texto en password y confirm, hacer que aparzcan
+											// cosas distintas si es admin o cliente
+				newUser = Admin.builder().username(username).password(password).role(role).build();
+			} else if (role == User.Role.CLIENT) {
+				newUser = Client.builder().username(username).password(password).fullName(name).phone(phone).role(role)
+						.build();
+			} else {
+				ControllerMenu.showError("Error en el registro", "Rol no válido: " + role, "");
+				return;
+			}
 
-	            if (signedUser == null) {
-	                ControllerMenu.showError("Registro fallido", "No se pudo registrar el usuario.", "");
-	                return;
-	            }
+			final ServiceSaveUser signin = new ServiceSaveUser(newUser, isUpdating);
 
-	            ResourceManager.getInstance().setCurrentUser(signedUser);
+			signin.setOnSucceeded(event -> {
+				User signedUser = signin.getValue();
 
-	            loginMenuClick();
-	        });
+				if (signedUser == null) {
+					ControllerMenu.showError("Registro fallido", "No se pudo registrar el usuario.", "");
+					return;
+				}
 
+				ResourceManager.getInstance().setCurrentUser(signedUser);
 
-	        signin.setOnFailed(event -> {
-	            Throwable exception = signin.getException();
-	            String errorMessage = (exception != null) ? exception.getMessage() : "Error desconocido";
-	            ControllerMenu.showError("Error en el registro", errorMessage, "");
-	        });
+				loginMenuClick();
+			});
 
-	        signin.start();
+			signin.setOnFailed(event -> {
+				Throwable exception = signin.getException();
+				String errorMessage = (exception != null) ? exception.getMessage() : "Error desconocido";
+				ControllerMenu.showError("Error en el registro", errorMessage, "");
+			});
 
-	    } catch (Exception e) {
-	        ControllerMenu.showError("Error en el registro", e.getMessage(), ExceptionUtils.getStackTrace(e));
-	    }
+			signin.start();
+
+		} catch (Exception e) {
+			ControllerMenu.showError("Error en el registro", e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
 	}
-
-
-
 
 	public void enableMenu() {
 		this.mnTrips.setVisible(true);
 		this.mnProfile.setVisible(true);
 		this.mnLogin.setVisible(false);
-		
-		if (ResourceManager.getInstance().isAdmin()) { 
+
+		if (ResourceManager.getInstance().isAdmin()) {
 			this.mnUsers.setVisible(true);
 			this.mnItBooking.setVisible(false);
 		} else {
@@ -383,39 +397,43 @@ public class ControllerMenu implements Initializable {
 	}
 
 	private void logoffMenu() {
-		//this.mnTrips.setVisible(false);
+		// this.mnTrips.setVisible(false);
 		this.mnTrips.setVisible(false);
 		this.mnUsers.setVisible(false);
 		this.mnProfile.setVisible(false);
 		this.mnLogin.setVisible(true);
 	}
-	
-	public void loadView(Pane vista) {
-		if (vista == null) return;
 
-		if (checkViewAlreadyLoaded(vista.getId())) return;
+	public void loadView(Pane vista) {
+		if (vista == null)
+			return;
+
+		if (checkViewAlreadyLoaded(vista.getId()))
+			return;
 
 		this.portviewPane.getChildren().clear();
 
-		//appRootPane.setPrefHeight(appRootPane.getHeight() - 80.0);
+		// appRootPane.setPrefHeight(appRootPane.getHeight() - 80.0);
 
 		this.portviewPane.getChildren().add(vista);
 
-		AnchorPane.setTopAnchor(vista,0.0);
-		AnchorPane.setBottomAnchor(vista,0.0);
+		AnchorPane.setTopAnchor(vista, 0.0);
+		AnchorPane.setBottomAnchor(vista, 0.0);
 		AnchorPane.setLeftAnchor(vista, 0.0);
 		AnchorPane.setRightAnchor(vista, 0.0);
-		//this.portviewPane.setVisible(true);
+		// this.portviewPane.setVisible(true);
 	}
 
 	private boolean checkViewAlreadyLoaded(String id) {
-		if (id == null || this.portviewPane != null || this.portviewPane.getChildren() != null) return false;
+		if (id == null || this.portviewPane != null || this.portviewPane.getChildren() != null)
+			return false;
 
 		Iterator<Node> fills = this.portviewPane.getChildren().iterator();
 
 		while (fills.hasNext()) {
 			Node aux = fills.next();
-			if (id.equals(aux.getId())) return true;
+			if (id.equals(aux.getId()))
+				return true;
 		}
 
 		return false;
@@ -423,40 +441,44 @@ public class ControllerMenu implements Initializable {
 
 	public void openUserForm(User user, boolean isNewUser) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewFormUser.fxml"), ResourceManager.getInstance().getTranslationBundle());
-			BorderPane vista = (BorderPane)loader.load();
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewFormUser.fxml"),
+					ResourceManager.getInstance().getTranslationBundle());
+			BorderPane vista = (BorderPane) loader.load();
 
 			ControllerFormUser controllerFormUser = loader.getController();
-			
+
 			if (isNewUser) {
-	            controllerFormUser.prepareForNewUser(); //nuevo registro
-	        } else {
-	            controllerFormUser.loadUserProfile(user);  //cargar perfil
-	        }
-			
+				controllerFormUser.prepareForNewUser(); // nuevo registro
+			} else {
+				controllerFormUser.loadUserProfile(user); // cargar perfil
+			}
+
 			this.loadView(vista);
 		} catch (Exception e) {
 			e.printStackTrace();
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(),
+					ExceptionUtils.getStackTrace(e));
 		}
 	}
-	
+
 	public void openTripReschedule(Trip trip) {
 	    try {
 	        // Crear nuevo Stage
 	        Stage dialogStage = new Stage();
-	        
 	        // Configurar el modo modal
 	        dialogStage.initModality(Modality.APPLICATION_MODAL);
 	        dialogStage.initOwner(this.stage); // Asignar propietario
 	        
 	        // Cargar el FXML
-	        FXMLLoader loader = new FXMLLoader(
-	            getClass().getResource("ViewReschedulingTrip.fxml"),
-	            ResourceManager.getInstance().getTranslationBundle()
-	        );
+	        FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewReschedulingTrip.fxml"),
+	                ResourceManager.getInstance().getTranslationBundle());
 	        
-	        BorderPane vista = (BorderPane) loader.load();
+	        BorderPane vista = (BorderPane) loader.load(); // Primero cargar el FXML
+	        
+	        // Ahora sí obtener el controlador
+	        ControllerReschedulingTrip controllerReschedulingTrip = loader.getController();
+	        controllerReschedulingTrip.loadTrip(trip); // cargar perfil
+	        
 	        Scene scene = new Scene(vista);
 	        
 	        // Configurar la escena y mostrar
@@ -464,14 +486,71 @@ public class ControllerMenu implements Initializable {
 	        dialogStage.showAndWait(); // Esperar hasta que se cierre
 	        
 	    } catch (Exception e) {
-	        ControllerMenu.showError(
-	            ResourceManager.getInstance().getText("error.menu.view.opening"),
-	            e.getMessage(),
-	            ExceptionUtils.getStackTrace(e)
-	        );
+	        ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), 
+	                e.getMessage(), ExceptionUtils.getStackTrace(e));
 	    }
 	}
 
+	public void openTripConfirm(Trip trip) {
+	    try {
+	        // Crear nuevo Stage
+	        Stage dialogStage = new Stage();
+	        // Configurar el modo modal
+	        dialogStage.initModality(Modality.APPLICATION_MODAL);
+	        dialogStage.initOwner(this.stage); // Asignar propietario
+	        
+	        // Cargar el FXML
+	        FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewConfirmTrip.fxml"),
+	                ResourceManager.getInstance().getTranslationBundle());
+	        
+	        BorderPane vista = (BorderPane) loader.load(); // Primero cargar el FXML
+	        
+	        // Ahora sí obtener el controlador
+	        ControllerConfirmTrip controllerConfirmTrip = loader.getController();
+	        controllerConfirmTrip.loadTrip(trip); // cargar perfil
+	        
+	        Scene scene = new Scene(vista);
+	        
+	        // Configurar la escena y mostrar
+	        dialogStage.setScene(scene);
+	        dialogStage.showAndWait(); // Esperar hasta que se cierre
+	        
+	    } catch (Exception e) {
+	        ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), 
+	                e.getMessage(), ExceptionUtils.getStackTrace(e));
+	    }
+	}
+	
+	public void openTripCancel(Trip trip) {
+	    try {
+	        // Crear nuevo Stage
+	        Stage dialogStage = new Stage();
+	        // Configurar el modo modal
+	        dialogStage.initModality(Modality.APPLICATION_MODAL);
+	        dialogStage.initOwner(this.stage); // Asignar propietario
+	        
+	        // Cargar el FXML
+	        FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewCancelTrip.fxml"),
+	                ResourceManager.getInstance().getTranslationBundle());
+	        
+	        BorderPane vista = (BorderPane) loader.load(); // Primero cargar el FXML
+	        
+	        // Ahora sí obtener el controlador
+	        ControllerCancelTrip controllerCancelTrip = loader.getController();
+	        controllerCancelTrip.loadTrip(trip); // cargar perfil
+	        
+	        Scene scene = new Scene(vista);
+	        
+	        // Configurar la escena y mostrar
+	        dialogStage.setScene(scene);
+	        dialogStage.showAndWait(); // Esperar hasta que se cierre
+	        
+	    } catch (Exception e) {
+	        ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), 
+	                e.getMessage(), ExceptionUtils.getStackTrace(e));
+	    }
+	}
+	
 	public static Button addIconToButton(Button button, Image image, int size) {
 		ImageView logo = new ImageView(image);
 		logo.setFitWidth(size);
@@ -482,24 +561,29 @@ public class ControllerMenu implements Initializable {
 	}
 
 	public static void showError(String title, String sms, String trace) {
-		showAlert(ResourceManager.getInstance().getText("alert.title.error"), title, sms, trace, AlertType.ERROR, "error-panel");
+		showAlert(ResourceManager.getInstance().getText("alert.title.error"), title, sms, trace, AlertType.ERROR,
+				"error-panel");
 	}
 
 	public static void showError(String title, String sms) {
-		showAlert(ResourceManager.getInstance().getText("alert.title.error"), title, sms, null, AlertType.ERROR, "error-panel");
+		showAlert(ResourceManager.getInstance().getText("alert.title.error"), title, sms, null, AlertType.ERROR,
+				"error-panel");
 	}
-	
+
 	public static void showInfo(String title, String sms) {
-		showAlert(ResourceManager.getInstance().getText("alert.title.information"), title, sms, null, AlertType.INFORMATION, "info-panel");
+		showAlert(ResourceManager.getInstance().getText("alert.title.information"), title, sms, null,
+				AlertType.INFORMATION, "info-panel");
 	}
 
 	public static boolean showConfirm(String title, String sms) {
-		Optional<ButtonType> result = showAlert(ResourceManager.getInstance().getText("alert.title.confirm"), title, sms, null, AlertType.CONFIRMATION, "info-panel");
+		Optional<ButtonType> result = showAlert(ResourceManager.getInstance().getText("alert.title.confirm"), title,
+				sms, null, AlertType.CONFIRMATION, "info-panel");
 
 		return result.get() == ButtonType.OK;
 	}
 
-	private static Optional<ButtonType> showAlert(String title, String header, String sms, String trace, AlertType tipus, String paneId) {
+	private static Optional<ButtonType> showAlert(String title, String header, String sms, String trace,
+			AlertType tipus, String paneId) {
 
 		Alert alert = new Alert(tipus);
 		alert.setTitle(title);
@@ -507,7 +591,6 @@ public class ControllerMenu implements Initializable {
 		alert.setHeaderText(header);
 		alert.setContentText(sms);
 		alert.setResizable(true);
-
 
 		if (trace == null) {
 			alert.getDialogPane().setPrefSize(400, 120);
@@ -518,7 +601,7 @@ public class ControllerMenu implements Initializable {
 			textArea.setEditable(false);
 			textArea.setWrapText(true);
 
-			//textArea.setMaxWidth(Double.MAX_VALUE);
+			// textArea.setMaxWidth(Double.MAX_VALUE);
 			textArea.setMaxWidth(600);
 			textArea.setMaxHeight(Double.MAX_VALUE);
 			textArea.setMaxHeight(300);
@@ -534,7 +617,6 @@ public class ControllerMenu implements Initializable {
 			// Set expandable Exception into the dialog pane.
 			alert.getDialogPane().setExpandableContent(expContent);
 			alert.getDialogPane().setExpanded(false);
-
 
 			// Change Listener => property has been recalculated
 
@@ -554,41 +636,40 @@ public class ControllerMenu implements Initializable {
 
 			// Lambda version
 
-			/*alert.getDialogPane().expandedProperty().addListener((observable, oldvalue, newvalue) -> {
+			/*
+			 * alert.getDialogPane().expandedProperty().addListener((observable, oldvalue,
+			 * newvalue) -> {
+			 * 
+			 * Platform.runLater(() -> { alert.getDialogPane().requestLayout(); Stage stage
+			 * = (Stage) alert.getDialogPane().getScene().getWindow(); stage.sizeToScene();
+			 * }); });
+			 */
 
-				Platform.runLater(() -> {
-					alert.getDialogPane().requestLayout();
-					Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-					stage.sizeToScene();
-				});
-			});*/
+			// Invalidation Listener => property and has to be recalculated
 
-			// Invalidation Listener => property  and has to be recalculated
-
-			/*alert.getDialogPane().expandedProperty().addListener((observable) -> {
-
-				Platform.runLater(() -> {
-					alert.getDialogPane().requestLayout();
-					Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-					stage.sizeToScene();
-				});
-			});*/
+			/*
+			 * alert.getDialogPane().expandedProperty().addListener((observable) -> {
+			 * 
+			 * Platform.runLater(() -> { alert.getDialogPane().requestLayout(); Stage stage
+			 * = (Stage) alert.getDialogPane().getScene().getWindow(); stage.sizeToScene();
+			 * }); });
+			 */
 		}
 
 		return alert.showAndWait();
 	}
-	
+
 	private File openFileChooser(String title, boolean open) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle(title);
 		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.getExtensionFilters().addAll(
-				new FileChooser.ExtensionFilter("BIN", "*.bin"),
-				new FileChooser.ExtensionFilter("Tots", "*.*")
-				);
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("BIN", "*.bin"),
+				new FileChooser.ExtensionFilter("Tots", "*.*"));
 		File file;
-		if (open) file = fileChooser.showOpenDialog(ResourceManager.getInstance().getStage());
-		else file = fileChooser.showSaveDialog(ResourceManager.getInstance().getStage());
+		if (open)
+			file = fileChooser.showOpenDialog(ResourceManager.getInstance().getStage());
+		else
+			file = fileChooser.showSaveDialog(ResourceManager.getInstance().getStage());
 		return file;
 	}
 }

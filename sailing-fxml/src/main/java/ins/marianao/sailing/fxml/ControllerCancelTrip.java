@@ -34,19 +34,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
-public class ControllerReschedulingTrip {
+public class ControllerCancelTrip {
 
 	@FXML
 	private Button btnCancel;
 
 	@FXML
 	private Button btnSubmit;
-
-	@FXML
-	private ComboBox<String> cbDeparture;
-
-	@FXML
-	private DatePicker dpDate;
 
 	@FXML
 	private TextField tfReason;
@@ -59,24 +53,14 @@ public class ControllerReschedulingTrip {
 	public void loadTrip(Trip trip) {
 		this.trip = trip;
 		System.out.println("Trip recibido correctamente" + trip);
-		System.out.println(trip.getDeparture().getTripType().getDepartures());
-		System.out.println(trip.getDeparture().getTripType());
-
-		// Configuración del cmbStatus
-		ObservableList<String> departures = FXCollections.observableArrayList();
-		String departuresString = trip.getDeparture().getTripType().getDepartures();
-		String[] departuresArray = departuresString.split(";");
-		departures.addAll(Arrays.asList(departuresArray));
-		cbDeparture.setItems(departures);
-
 	}
 
 	@FXML
 	void cancel(ActionEvent event) {
 
 		boolean result = ControllerMenu.showConfirm(
-				ResourceManager.getInstance().getText("fxml.text.viewUsers.delete.title"),
-				ResourceManager.getInstance().getText("fxml.text.viewUsers.delete.text"));
+				ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.title"),
+				ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.text"));
 		if (result) {
 			if (result) {
 				((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
@@ -86,44 +70,18 @@ public class ControllerReschedulingTrip {
 
 	@FXML
 	void submit(ActionEvent event) {
-	    String reason = this.tfReason.getText();
-	    String departure = this.cbDeparture.getValue();
-	    LocalDate dateLocal = dpDate.getValue();
+	    String reason = this.tfReason.getText().trim();
 	    
-	    // Validaciones existentes
-	    if (dateLocal == null) {
-	        ControllerMenu.showError("Error", "La fecha no puede estar vacia.");
-	        return;
-	    } else if (dateLocal.isBefore(LocalDate.now())) {
-	        ControllerMenu.showError("Error", "La fecha no puede ser anterior a la fecha actual");
-	        return;
-	    }
-	    
-	    Date formatedDate = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
-	    
-
-	    
-	    if (departure.equals("9:30")) {
-			departure = "09:30";
-			System.out.println(departure);
-		}
-	    System.out.println(departure + "new");
-	    System.out.println(trip.getDeparture().getDeparture().getTime() + "new");
-	    LocalTime time = LocalTime.parse(departure);
-	    Date departureTime = java.sql.Time.valueOf(time);
+	   
 	    
 	    // Crear Action con todos los campos obligatorios
 	    Action newAction = Rescheduling.builder()
-	        .type(Action.Type.valueOf(Action.RESCHEDULING))
+	        .type(Action.Type.valueOf(Action.CANCELLATION))
 	        .idTrip(trip.getId())
-	        .reason(reason)
 	        .date(new Date())
-	        .oldDate(trip.getDeparture().getDate())
-	        .oldDeparture(trip.getDeparture().getDeparture())
+	        .reason(reason)
 	        .performer(ResourceManager.getInstance().getCurrentUser())
 	        .trip(trip)
-	        .newDate(formatedDate)
-	        .newDeparture(departureTime)
 	        .build();
 	    
 	    ServiceSaveTrip addAction;
@@ -132,7 +90,7 @@ public class ControllerReschedulingTrip {
 	        
 	        // Manejar el éxito
 	        addAction.setOnSucceeded(e -> {
-	            ControllerMenu.showInfo("Recheduled", "El trip se ha replanificado.");
+	            ControllerMenu.showInfo("Canceled", "El trip se ha cancelado.");
 	            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
 	        });
 	        
