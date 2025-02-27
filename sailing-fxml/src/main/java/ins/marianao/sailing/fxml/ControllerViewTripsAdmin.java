@@ -3,10 +3,14 @@ package ins.marianao.sailing.fxml;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.bytecode.internal.bytebuddy.PrivateAccessorException;
@@ -18,10 +22,13 @@ import cat.institutmarianao.sailing.ws.model.Trip.Status;
 import cat.institutmarianao.sailing.ws.model.TripType;
 import cat.institutmarianao.sailing.ws.model.User;
 import cat.institutmarianao.sailing.ws.model.TripType.Category;
+import cat.institutmarianao.sailing.ws.model.User.Role;
 import ins.marianao.sailing.fxml.exception.OnFailedEventHandler;
 import ins.marianao.sailing.fxml.manager.ResourceManager;
 import ins.marianao.sailing.fxml.services.ServiceQueryTrips;
+import ins.marianao.sailing.fxml.services.ServiceQueryUsers;
 import ins.marianao.sailing.fxml.utils.ColumnButton;
+import ins.marianao.sailing.fxml.utils.Formatters;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -35,21 +42,25 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 public class ControllerViewTripsAdmin implements Initializable {
 
     @FXML private ComboBox<Category> cmbCategory;
-    @FXML private TextField tfClient;
+    @FXML private ComboBox<User> cmbUser;
     @FXML private ComboBox<Status> cmbStatus;
     @FXML private DatePicker dpFrom;
     @FXML private DatePicker dpTo;
@@ -77,126 +88,167 @@ public class ControllerViewTripsAdmin implements Initializable {
     	// Guardar el ResourceBundle en una variable de clase
         this.resource = resources;
         
-
-        tfClient.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				reloadTrips();
-			}
-		});
+        final ServiceQueryUsers queryUsers = new ServiceQueryUsers(new Role[] {Role.CLIENT}, null);
         
-     // Configuración del cmbStatus
-        ObservableList<Category> categoryList = FXCollections.observableArrayList(TripType.Category.values());
+        queryUsers.setOnSucceeded(Event -> {
+        	ObservableList<User> client = FXCollections.observableArrayList(queryUsers.getValue());
+        	
+        	client.add(0, null);
+        	cmbUser.setItems(FXCollections.observableArrayList(client));
+        	
+        	cmbUser.valueProperty().addListener((observable, oldValue, newValue) -> {
+        	    reloadTrips();
+        	});
+        	
+        	cmbUser.setConverter(Formatters.getUserConverter());
+        	
+        	
+        });
         
-        // Configurar el CellFactory para mostrar los items en el dropdown
-        cmbCategory.setCellFactory((Callback<ListView<Category>, ListCell<Category>>) new Callback<ListView<Category>, ListCell<Category>>() {
+        queryUsers.start();	
+        
+        cmbUser.setCellFactory(new Callback<ListView<User>, ListCell<User>>() {
             @Override
-            public ListCell<Category> call(ListView<Category> param) {
-                return new ListCell<Category>() {
-                	@Override
-                	protected void updateItem(Category item, boolean empty) {
-                	    super.updateItem(item, empty);
-                	    if (empty) {
-                	        setText(resource.getString("text.Category.ALL"));
-                	    } else {
-                	        setText(resource.getString("text.Category." + item.name()));
-                	    }
-                	}
+            public ListCell<User> call(ListView<User> param) {
+                return new ListCell<User>() {
+                    @Override
+                    protected void updateItem(User item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(resource.getString("text.User.ALL")); // Mostrar "ALL" si es null
+                        } else {
+                            setText(item.getInfo()); // Mostrar el nombre completo del usuario
+                        }
+                    }
                 };
             }
         });
         
-        // Configurar el StringConverter para mostrar el item seleccionado
-        cmbCategory.setConverter(new StringConverter<Category>() {
-            @Override
-            public String toString(Category category) {
-            	if (category==null) {
-					return resource.getString("text.Category.ALL");
-				}
-                return category == null ? null : 
-                    resource.getString("text.Category." + category.name());
-            }
+        
+        ObservableList<TripType.Category> categoryList = FXCollections.observableArrayList(
+            TripType.Category.GROUP, 
+            TripType.Category.PRIVATE
+        );
 
+        TripType.Category allCategory = null; //all será null para no tneer filtros
+
+        // Crear la lista con ALL al inicio
+        ObservableList<TripType.Category> categoryListWithAll = FXCollections.observableArrayList();
+        categoryListWithAll.add(allCategory);
+        categoryListWithAll.addAll(categoryList);
+
+        // Asignar la lista al ComboBox
+        cmbCategory.setItems(categoryListWithAll);
+        
+
+        // Configurar la visualización en el ComboBox
+        cmbCategory.setCellFactory(new Callback<ListView<TripType.Category>, ListCell<TripType.Category>>() {
             @Override
-            public Category fromString(String string) {
-                return null;
+            public ListCell<TripType.Category> call(ListView<TripType.Category> param) {
+                return new ListCell<TripType.Category>() {
+                    @Override
+                    protected void updateItem(TripType.Category item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(resource.getString("text.Category.ALL"));
+                        } else {
+                            setText(resource.getString("text.Category." + item.name()));
+                        }
+                    }
+                };
             }
         });
 
-        
-        // Establecer los items del ComboBox
-        cmbCategory.setItems(categoryList);
-        
-        // Agregar listener para recargar los viajes cuando cambia el estado
+        // Configurar el StringConverter para manejar "ALL"
+        cmbCategory.setConverter(new StringConverter<TripType.Category>() {
+            @Override
+            public String toString(TripType.Category category) {
+                if (category == null) {
+                    return resource.getString("text.Category.ALL"); // Mostrar "ALL" si es null
+                }
+                return resource.getString("text.Category." + category.name());
+            }
+
+            @Override
+            public TripType.Category fromString(String string) {
+                if (string.equals(resource.getString("text.Category.ALL"))) {
+                    return null; // Representamos "ALL" como null
+                }
+                return categoryList.stream()
+                        .filter(cat -> resource.getString("text.Category." + cat.name()).equals(string))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
+
+        // Agregar listener para recargar los viajes cuando cambia la selección
         cmbCategory.valueProperty().addListener((observable, oldValue, newValue) -> {
             reloadTrips();
         });
+
         
-        
-    	// Configuración del cmbStatus
-        ObservableList<Status> statusList = FXCollections.observableArrayList(Trip.Status.values());
-        
+        Status allStatus = null; // "ALL" será representado como null
+        ObservableList<Status> statusListWithAll = FXCollections.observableArrayList();
+        statusListWithAll.add(allStatus);
+        statusListWithAll.addAll(FXCollections.observableArrayList(Trip.Status.values()));
+
+        // Asignar la lista al ComboBox
+        cmbStatus.setItems(statusListWithAll);
+
         // Configurar el CellFactory para mostrar los items en el dropdown
-        cmbStatus.setCellFactory((Callback<ListView<Status>, ListCell<Status>>) new Callback<ListView<Status>, ListCell<Status>>() {
+        cmbStatus.setCellFactory(new Callback<ListView<Status>, ListCell<Status>>() {
             @Override
             public ListCell<Status> call(ListView<Status> param) {
                 return new ListCell<Status>() {
-                	@Override
-                	protected void updateItem(Status item, boolean empty) {
-                	    super.updateItem(item, empty);
-                	    if (empty) {
-                	        setText(resource.getString("text.Status.ALL"));
-                	    } else {
-                	        setText(resource.getString("text.Status." + item.name()));
-                	    }
-                	}
+                    @Override
+                    protected void updateItem(Status item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(resource.getString("text.Status.ALL")); // Mostrar "ALL" si es null
+                        } else {
+                            setText(resource.getString("text.Status." + item.name()));
+                        }
+                    }
                 };
             }
         });
-        
-        // Configurar el StringConverter para mostrar el item seleccionado
+
+        // Configurar el StringConverter para manejar "ALL"
         cmbStatus.setConverter(new StringConverter<Status>() {
             @Override
             public String toString(Status status) {
-            	if (status==null) {
-					return resource.getString("text.Status.ALL");
-				}
-                return status == null ? null : 
-                    resource.getString("text.Status." + status.name());
+                if (status == null) {
+                    return resource.getString("text.Status.ALL"); // Mostrar "ALL" si es null
+                }
+                return resource.getString("text.Status." + status.name());
             }
 
             @Override
             public Status fromString(String string) {
-                return null;
+                if (string.equals(resource.getString("text.Status.ALL"))) {
+                    return null; // Representamos "ALL" como null
+                }
+                return Arrays.stream(Trip.Status.values())
+                        .filter(st -> resource.getString("text.Status." + st.name()).equals(string))
+                        .findFirst()
+                        .orElse(null);
             }
         });
 
-        
-        // Establecer los items del ComboBox
-        cmbStatus.setItems(statusList);
-        
         // Agregar listener para recargar los viajes cuando cambia el estado
         cmbStatus.valueProperty().addListener((observable, oldValue, newValue) -> {
             reloadTrips();
         });
-    			
+
         reloadTrips();
 
         // Escuchar cambios en la fecha seleccionada en dpFrom
-        dpFrom.valueProperty().addListener(new ChangeListener<java.time.LocalDate>() {
-            @Override
-            public void changed(ObservableValue<? extends java.time.LocalDate> observable, java.time.LocalDate oldValue, java.time.LocalDate newValue) {
-                reloadTrips();
-            }
-        });
+        dpFrom.valueProperty().addListener((observable, oldValue, newValue) -> reloadTrips());
+
         
      // Escuchar cambios en la fecha seleccionada en dpFrom
-        dpTo.valueProperty().addListener(new ChangeListener<java.time.LocalDate>() {
-            @Override
-            public void changed(ObservableValue<? extends java.time.LocalDate> observable, java.time.LocalDate oldValue, java.time.LocalDate newValue) {
-                reloadTrips();
-            }
-        });
+        dpTo.valueProperty().addListener((observable, oldValue, newValue) -> reloadTrips());
+
         
         //Columna Index
         this.tripsTable.setEditable(true);
@@ -283,7 +335,7 @@ public class ControllerViewTripsAdmin implements Initializable {
 		});
 		
 //		Columna Departure
-		SimpleDateFormat sdf2 = new SimpleDateFormat("mm:HH");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
 		this.colDeparture.setMinWidth(50);
 		this.colDeparture.setMaxWidth(Double.MAX_VALUE);
 		this.colDeparture.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Trip, Date>, ObservableValue<Date>>() {
@@ -329,20 +381,55 @@ public class ControllerViewTripsAdmin implements Initializable {
 			}
 		});
 	
-		this.colCancel.setCellFactory(new ColumnButton<Trip, Boolean>(ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.title"),
-											new Image(getClass().getResourceAsStream("resources/cancel.png")) ) {
-			@Override
-			public void buttonAction(Trip trip) {
-				try {
-					boolean result = ControllerMenu.showConfirm(ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.title"), 
-																	ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.text"));
-					if (result) {
-						//deleteUsuari(usuari);
-					}
-				} catch (Exception e) {
-					ControllerMenu.showError(resource.getString("error.viewUsers.delete"), e.getMessage(), ExceptionUtils.getStackTrace(e));
-				}
-			}
+		this.colCancel.setCellFactory(column -> new TableCell<Trip, Boolean>() {
+		    private final Button button = new Button();
+
+		    {
+		        // cargar imagen y ajustar tamaño
+		        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("resources/cancel.png")));
+		        imageView.setFitWidth(16);
+		        imageView.setFitHeight(16);
+
+		        // juntamos el botón con la imagen
+		        button.setGraphic(imageView);
+		        button.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+		        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+		        button.setOnAction(event -> {
+		            Trip trip = getTableView().getItems().get(getIndex());
+		            try {
+		                boolean result = ControllerMenu.showConfirm(
+		                    ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.title"), 
+		                    ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.text")
+		                );
+		                if (result) {
+		                    // lógica para cancelar
+		                    // deleteTrip(trip); // llamar al método para cancelar el viaje
+		                }
+		            } catch (Exception e) {
+		                ControllerMenu.showError(
+		                    resource.getString("error.viewUsers.delete"), 
+		                    e.getMessage(), 
+		                    ExceptionUtils.getStackTrace(e)
+		                );
+		            }
+		        });
+		    }
+
+		    @Override
+		    protected void updateItem(Boolean item, boolean empty) {
+		        super.updateItem(item, empty);
+		        if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+		            setGraphic(null);
+		        } else {
+		            Trip trip = getTableRow().getItem();
+		            if (trip.getStatus() == Status.DONE || trip.getStatus() == Status.CANCELLED) {
+		                setGraphic(null); // no mostrar el botón si el estado es DONE o CANCELLED
+		            } else {
+		                setGraphic(button); // mostrar el botón
+		            }
+		        }
+		    }
 		});
 		
 //		Columna Reschedule
@@ -356,18 +443,45 @@ public class ControllerViewTripsAdmin implements Initializable {
 			}
 		});
 	
-		this.colReschedule.setCellFactory(new ColumnButton<Trip, Boolean>(ResourceManager.getInstance().getText("fxml.text.viewTrips.cancel.title"),
-											new Image(getClass().getResourceAsStream("resources/reschedule.png")) ) {
-			@Override
-			public void buttonAction(Trip trip) {
-				ResourceManager.getInstance().getMenuController().openTripReschedule(trip);
-			}
+		this.colReschedule.setCellFactory(column -> new TableCell<Trip, Boolean>() {
+		    private final Button button = new Button();
+
+		    {
+		        // cargar imagen y ajustar tamaño
+		        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("resources/reschedule.png")));
+		        imageView.setFitWidth(16);
+		        imageView.setFitHeight(16);
+
+		        // juntamos el botón con la imagen
+		        button.setGraphic(imageView);
+		        button.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+		        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+		        button.setOnAction(event -> {
+		            Trip trip = getTableView().getItems().get(getIndex());
+		            ResourceManager.getInstance().getMenuController().openTripReschedule(trip);
+		        });
+		    }
+
+		    @Override
+		    protected void updateItem(Boolean item, boolean empty) {
+		        super.updateItem(item, empty);
+		        if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+		            setGraphic(null);
+		        } else {
+		            Trip trip = getTableRow().getItem();
+		            if (trip.getStatus() == Status.DONE || trip.getStatus() == Status.CANCELLED) {
+		                setGraphic(null); // no mostrar el botón si el estado es DONE o CANCELLED
+		            } else {
+		                setGraphic(button); // mostrar el botón en otros casos
+		            }
+		        }
+		    }
 		});
 		
 //		Columna Confirm
 		this.colConfirm.setMinWidth(50);
 		this.colConfirm.setMaxWidth(70);
-		// define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
 		this.colConfirm.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Trip, Boolean>, ObservableValue<Boolean>>() {
 			@Override
 			public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<Trip, Boolean> cell) {
@@ -375,15 +489,41 @@ public class ControllerViewTripsAdmin implements Initializable {
 			}
 		});
 	
-		this.colConfirm.setCellFactory(new ColumnButton<Trip, Boolean>(ResourceManager.getInstance().getText("fxml.text.viewTrips.reschedule.title"),
-											new Image(getClass().getResourceAsStream("resources/done.png")) ) {
-			@Override
-			public void buttonAction(Trip trip) {
-				//ResourceManager.getInstance().getMenuController().openUserForm(trip);
-			}
-		});
-		
-		
+		this.colConfirm.setCellFactory(column -> new TableCell<Trip, Boolean>() {
+		    private final Button button = new Button();
+
+		    {
+		        // juntamos el botón con la imagen
+		        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("resources/done.png")));
+		        imageView.setFitWidth(16);
+		        imageView.setFitHeight(16);
+
+		        // configurar el botón con la imagen
+		        button.setGraphic(imageView);
+		        button.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+		        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+		        button.setOnAction(event -> {
+		            Trip trip = getTableView().getItems().get(getIndex());
+		            // Lógica para confirmar el viaje
+		        });
+		    }
+
+		    @Override
+		    protected void updateItem(Boolean item, boolean empty) {
+		        super.updateItem(item, empty);
+		        if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+		            setGraphic(null);
+		        } else {
+		            Trip trip = getTableRow().getItem();
+		            if (trip.getStatus() == Status.DONE || trip.getStatus() == Status.CANCELLED) {
+		                setGraphic(null); // no mostrar el botón si el estado es DONE o CANCELLED
+		            } else {
+		                setGraphic(button); // mostrar el botón en otros casos
+		            }
+		        }
+		    }
+		});		 
     }
 
     private void reloadTrips() {
@@ -392,29 +532,42 @@ public class ControllerViewTripsAdmin implements Initializable {
         Status status = cmbStatus.getValue();
         LocalDate fromDate = dpFrom.getValue();
         LocalDate toDate = dpTo.getValue();
-		String clientName = tfClient.getText();
-        // Convertir LocalDate a java.util.Date
-        Date FromDate = fromDate != null ? Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant()) : null;
-        Date ToDate = toDate != null ? Date.from(toDate.atStartOfDay(ZoneId.systemDefault()).toInstant()) : null;
+        User selectedUser = cmbUser.getValue();
+        String clientName = (selectedUser != null) ? selectedUser.getUsername() : null;
 
-        // Convertir el estado y la categoría a arrays si es necesario
-        Status[] statusArray = status != null ? new Status[]{status} : null;
-        Category[] categoryArray = category != null ? new Category[]{category} : null;
 
+        System.out.println("dpFrom value: " + fromDate);
+        System.out.println("dpTo value: " + toDate);
+
+        
+        // Convertir LocalDate a java.util.Date correctamente
+        Date fromDateConverted = (fromDate != null) 
+            ? Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant()) 
+            : null;
+
+        Date toDateConverted = (toDate != null) 
+        	? Date.from(toDate.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()) 
+        	: null;
+        
+        System.out.println("Converted fromDate: " + fromDateConverted);
+        System.out.println("Converted toDate: " + toDateConverted);
+
+        // Convertir el estado y la categoría a arrays
+        Status[] statusArray = (status != null) ? new Status[]{status} : new Status[0];
+        Category[] categoryArray = (category != null) ? new Category[]{category} : new Category[0];
 
         // Crear el servicio de consulta de viajes con los parámetros de búsqueda
-        final ServiceQueryTrips queryTrips = new ServiceQueryTrips(statusArray, categoryArray, clientName, FromDate, ToDate);
+        final ServiceQueryTrips queryTrips = new ServiceQueryTrips(statusArray, categoryArray, clientName, fromDateConverted, toDateConverted);
 
         // Configurar el manejador de éxito de la consulta
-        queryTrips.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent t) {
-                tripsTable.setEditable(true);
-                tripsTable.getItems().clear();
+        queryTrips.setOnSucceeded(event -> {
+            tripsTable.setEditable(true);
+            tripsTable.getItems().clear();
 
-                // Obtener la lista de viajes y establecerla en la tabla
-                ObservableList<Trip> trips = FXCollections.observableArrayList(queryTrips.getValue());
-                tripsTable.setItems(trips);
+            // Obtener la lista de viajes y establecerla en la tabla (evitar null)
+            List<Trip> resultTrips = queryTrips.getValue();
+            if (resultTrips != null) {
+                tripsTable.setItems(FXCollections.observableArrayList(resultTrips));
             }
         });
 

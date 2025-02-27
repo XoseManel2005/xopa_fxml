@@ -7,7 +7,6 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -16,14 +15,14 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="viewTripsDirectory" prefHeight="611.0" prefWidth="1126.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ins.marianao.sailing.fxml.ControllerViewTripsAdmin">
+<BorderPane fx:id="viewTripsDirectory" prefHeight="611.0" prefWidth="1126.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ins.marianao.sailing.fxml.ControllerViewTripsAdmin">
    <center>
 		<AnchorPane prefHeight="593.0" prefWidth="1100.0" styleClass="centerregion">
 			<children>
             <HBox layoutX="20.0" layoutY="74.0" prefHeight="40.0" prefWidth="324.0" styleClass="input-group">
                <children>
 						<Label prefHeight="20.0" prefWidth="61.0" text="%fxml.text.viewTrips.client" />
-                  <TextField fx:id="tfClient" prefWidth="237.0" />
+                  <ComboBox fx:id="cmbUser" minWidth="84.0" prefHeight="42.0" prefWidth="272.0" />
                </children>
             </HBox>
             <GridPane hgap="10.0" layoutX="20.0" layoutY="129.0" prefHeight="40.0" prefWidth="940.0" vgap="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="129.0">
@@ -57,7 +56,7 @@
                   </HBox>
                   <HBox prefHeight="40.0" prefWidth="291.0" styleClass="input-group" GridPane.columnIndex="3">
                      <children>
-                        <Label prefHeight="20.0" prefWidth="61.0" text="%fxml.text.viewTrips.from" />
+                        <Label prefHeight="20.0" prefWidth="61.0" text="%fxml.text.viewTrips.to" />
                         <DatePicker fx:id="dpTo" prefHeight="40.0" prefWidth="226.0" />
                      </children>
                   </HBox>

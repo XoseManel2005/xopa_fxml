@@ -69,17 +69,17 @@ public class ServiceQueryTrips extends ServiceQueryBase<Trip> {
             webTarget = webTarget.queryParam("category", categoriesStr);
         }
         
-        if (this.clientName != null && !this.clientName.isBlank()) webTarget = webTarget.queryParam("user", clientName);
+        if (this.clientName != null && !this.clientName.isBlank()) webTarget = webTarget.queryParam("client", clientName);
 
         if (this.from != null) {
             Date From = this.from;
             webTarget = webTarget.queryParam("from", 
-                new SimpleDateFormat("yy-MM-dd").format(From));
+                new SimpleDateFormat("yyyy-MM-dd").format(From));
         }
         if (this.to != null) {
             Date To = this.to;
             webTarget = webTarget.queryParam("to",
-                new SimpleDateFormat("yy-MM-dd").format(To));
+                new SimpleDateFormat("yyyy-MM-dd").format(To));
         }
 
         Invocation.Builder invocationBuilder = ResourceManager.getInstance().getAuthRequestBuilder(webTarget, true);

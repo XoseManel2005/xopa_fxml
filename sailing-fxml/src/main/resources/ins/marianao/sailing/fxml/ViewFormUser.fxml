@@ -41,7 +41,6 @@
                         <TextField fx:id="txtUsername" promptText="%fxml.text.formUser.username" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#SignClick" prefHeight="52.0" prefWidth="523.0" text="%fxml.text.formUser.submit" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                   <HBox prefHeight="40.0" prefWidth="521.0" styleClass="input-group" GridPane.columnIndex="1" GridPane.rowIndex="3">
                      <children>
                         <Label styleClass="label-large" text="%fxml.text.formUser.password.lbl" />
@@ -66,6 +65,7 @@
                         <TextField fx:id="txtPhone" promptText="%fxml.text.formUser.phone" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
+                  <Button mnemonicParsing="false" onAction="#SignClick" prefHeight="52.0" prefWidth="523.0" text="%fxml.text.formUser.submit" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                </children>
             </GridPane>
          </children>

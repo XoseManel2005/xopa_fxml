@@ -65,7 +65,7 @@
 		</dependency>
 		<dependency>
 			<groupId>cat.institutmarianao</groupId>
-			<artifactId>sailingws-alumnes</artifactId>
+			<artifactId>sailingws</artifactId>
 			<version>2024.09</version>
 			<scope>compile</scope>
 		</dependency>
