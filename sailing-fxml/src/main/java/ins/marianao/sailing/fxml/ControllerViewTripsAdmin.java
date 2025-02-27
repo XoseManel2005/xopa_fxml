@@ -404,7 +404,11 @@ public class ControllerViewTripsAdmin implements Initializable {
 		                );
 		                if (result) {
 		                    // lógica para cancelar
-		                    // deleteTrip(trip); // llamar al método para cancelar el viaje
+		                	try {
+		    					ResourceManager.getInstance().getMenuController().openTripCancel(trip);
+		    				} catch (Exception e) {
+		    					ControllerMenu.showError(resource.getString("error.viewUsers.delete"), e.getMessage(), ExceptionUtils.getStackTrace(e));
+		    				}
 		                }
 		            } catch (Exception e) {
 		                ControllerMenu.showError(
@@ -506,6 +510,7 @@ public class ControllerViewTripsAdmin implements Initializable {
 		        button.setOnAction(event -> {
 		            Trip trip = getTableView().getItems().get(getIndex());
 		            // Lógica para confirmar el viaje
+		            ResourceManager.getInstance().getMenuController().openTripConfirm(trip);
 		        });
 		    }
 
@@ -524,9 +529,10 @@ public class ControllerViewTripsAdmin implements Initializable {
 		        }
 		    }
 		});		 
-    }
 
-    private void reloadTrips() {
+		}
+
+    public void reloadTrips() {
         // Obtener los valores seleccionados de los ComboBox y DatePicker
         Category category = cmbCategory.getValue();
         Status status = cmbStatus.getValue();
