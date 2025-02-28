@@ -58,16 +58,24 @@ public class ServiceQueryTripsTypes extends ServiceQueryBase<TripType> {
         if (priceFrom != null && priceTo != null && priceFrom > priceTo) {
             throw new IllegalArgumentException("El precio desde no puede ser menor que el precio hasta");
         }
+        
+        webTarget = webTarget.queryParam("priceFrom", priceFrom);
+        webTarget = webTarget.queryParam("priceTo", priceTo);
+
 
         // Validar plazas
         if (placesFrom != null && placesTo != null && placesFrom > placesTo) {
             throw new IllegalArgumentException("Las plazas desde no pueden ser menores que las plazas hasta");
         }
 
+        webTarget = webTarget.queryParam("maxPlacesFrom", placesFrom);
+        webTarget = webTarget.queryParam("maxPlacesTo", placesTo);
         // Validar duración
         if (durationFrom != null && durationTo != null && durationFrom > durationTo) {
             throw new IllegalArgumentException("La duración desde no puede ser menor que la duración hasta");
         }
+        webTarget = webTarget.queryParam("durationFrom", durationFrom);
+        webTarget = webTarget.queryParam("durationTo", durationTo);
 
         if (this.categories != null && this.categories.length > 0) {
             String categoriesStr = Arrays.stream(categories).map(Category::name).collect(Collectors.joining(","));
