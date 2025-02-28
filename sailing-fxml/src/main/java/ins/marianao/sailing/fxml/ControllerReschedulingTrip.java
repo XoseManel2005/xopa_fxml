@@ -65,9 +65,11 @@ public class ControllerReschedulingTrip {
 		// Configuración del cmbStatus
 		ObservableList<String> departures = FXCollections.observableArrayList();
 		String departuresString = trip.getDeparture().getTripType().getDepartures();
-		String[] departuresArray = departuresString.split(";");
-		departures.addAll(Arrays.asList(departuresArray));
-		cbDeparture.setItems(departures);
+		if (departuresString != null && !departuresString.isEmpty()) {
+			String[] departuresArray = departuresString.split(";");
+			departures.addAll(Arrays.asList(departuresArray));
+			cbDeparture.setItems(departures);
+		}
 
 	}
 
@@ -84,73 +86,54 @@ public class ControllerReschedulingTrip {
 		}
 	}
 
+	Date departureTime = null;
 	@FXML
 	void submit(ActionEvent event) {
-	    String reason = this.tfReason.getText();
-	    String departure = this.cbDeparture.getValue();
-	    LocalDate dateLocal = dpDate.getValue();
-	    
-	    // Validaciones existentes
-	    if (dateLocal == null) {
-	        ControllerMenu.showError("Error", "La fecha no puede estar vacia.");
-	        return;
-	    } else if (dateLocal.isBefore(LocalDate.now())) {
-	        ControllerMenu.showError("Error", "La fecha no puede ser anterior a la fecha actual");
-	        return;
-	    }
-	    
-	    Date formatedDate = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
-	    
+		String reason = this.tfReason.getText();
+		String departure = this.cbDeparture.getValue();
+		LocalDate dateLocal = dpDate.getValue();
 
-	    
-	    if (departure.equals("9:30")) {
-			departure = "09:30";
-			System.out.println(departure);
+		// Validaciones existentes
+		if (dateLocal == null) {
+			ControllerMenu.showError("Error", "La fecha no puede estar vacia.");
+			return;
+		} else if (dateLocal.isBefore(LocalDate.now())) {
+			ControllerMenu.showError("Error", "La fecha no puede ser anterior a la fecha actual");
+			return;
 		}
-	    System.out.println(departure + "new");
-	    System.out.println(trip.getDeparture().getDeparture().getTime() + "new");
-	    LocalTime time = LocalTime.parse(departure);
-	    Date departureTime = java.sql.Time.valueOf(time);
-	    
-	    // Crear Action con todos los campos obligatorios
-	    Action newAction = Rescheduling.builder()
-	        .type(Action.Type.valueOf(Action.RESCHEDULING))
-	        .idTrip(trip.getId())
-	        .reason(reason)
-	        .date(new Date())
-	        .oldDate(trip.getDeparture().getDate())
-	        .oldDeparture(trip.getDeparture().getDeparture())
-	        .performer(ResourceManager.getInstance().getCurrentUser())
-	        .trip(trip)
-	        .newDate(formatedDate)
-	        .newDeparture(departureTime)
-	        .build();
-	    
-	    ServiceSaveTrip addAction;
-	    try {
-	        addAction = new ServiceSaveTrip(newAction);
-	        
-	        // Manejar el éxito
-	        addAction.setOnSucceeded(e -> {
-	            ControllerMenu.showInfo("Recheduled", "El trip se ha replanificado.");
-	            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
-	        });
-	        
-	        // Manejar el fallo
-	        addAction.setOnFailed(e -> {
-	            Throwable exception = addAction.getException();
-	            System.out.println(newAction);
-	            System.out.println(addAction.toString());
 
-	            String errorMessage = (exception != null) ? exception.getMessage() : "Error desconocido";
-	            ControllerMenu.showError("Error en el registro", errorMessage, "");
-	        });
-	        
-	        // Iniciar el servicio
-	        addAction.start();
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		// Formatear fecha exactamente como espera el servidor
+		Date formatedDate = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		if (departure != null && !departure.isEmpty()) {
+			if (departure.length() > 2 && Character.isDigit(departure.charAt(0))) {
+				int indexOfColon = departure.indexOf(':');
+				if (indexOfColon == 1) {
+					departure = "0" + departure;
+				}
+			}
+			LocalTime time = LocalTime.parse(departure);
+			departureTime = java.sql.Time.valueOf(time);
+		}
+
+		Action newAction = Rescheduling.builder().type(Action.Type.valueOf(Action.RESCHEDULING)).idTrip(trip.getId())
+				.reason(reason).date(new Date()) // Fecha actual
+				.oldDate(trip.getDeparture().getDate()) // Fecha original
+				.oldDeparture(trip.getDeparture().getDeparture()) // Hora original
+				.performer(ResourceManager.getInstance().getCurrentUser())
+				.trip(trip)
+				.newDate(formatedDate)
+				.newDeparture(departureTime) // Nueva hora formateada
+				.build();
+		
+
+		ServiceSaveTrip addAction;
+		try {
+			addAction = new ServiceSaveTrip(newAction);
+			addAction.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
