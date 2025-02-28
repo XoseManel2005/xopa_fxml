@@ -385,8 +385,12 @@ public class ControllerViewTripsAdmin implements Initializable {
 					@Override
 					public ObservableValue<String> call(TableColumn.CellDataFeatures<Trip, String> trip) {
 						List<Action> tripComent = trip.getValue().getTracking();
-
-						// return new SimpleStringProperty(trip.getValue().getTracking());
+						for (Action tripComent1 : tripComent) {
+							System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAction de trip" + tripComent1.getInfo());
+							if (tripComent1.getInfo()!=null && !tripComent1.getInfo().trim().isEmpty()) {
+								return new SimpleStringProperty(tripComent1.getInfo());
+							}
+						}
 						return null;
 					}
 				});
