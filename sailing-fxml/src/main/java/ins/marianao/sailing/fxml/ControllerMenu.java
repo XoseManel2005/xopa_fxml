@@ -99,6 +99,15 @@ public class ControllerMenu implements Initializable {
 	@Override
 	public void initialize(URL url, ResourceBundle resource) {
 		this.logOff();
+		try {
+			BorderPane vista = (BorderPane) FXMLLoader.load(getClass().getResource("ViewTripsTypes.fxml"),
+					ResourceManager.getInstance().getTranslationBundle());
+
+			this.loadView(vista);
+		} catch (Exception e) {
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"),
+					e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
 	}
 
 	/**
@@ -148,13 +157,13 @@ public class ControllerMenu implements Initializable {
 	@FXML
 	public void bookingMenuClick() {
 		try {
-			// TODO Open trip types view. Remove empty view
-			BorderPane vista = new BorderPane();
+			BorderPane vista = (BorderPane) FXMLLoader.load(getClass().getResource("ViewTripsClient.fxml"),
+					ResourceManager.getInstance().getTranslationBundle());
 
 			this.loadView(vista);
 		} catch (Exception e) {
-			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), e.getMessage(),
-					ExceptionUtils.getStackTrace(e));
+			ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"),
+					e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 	}
 

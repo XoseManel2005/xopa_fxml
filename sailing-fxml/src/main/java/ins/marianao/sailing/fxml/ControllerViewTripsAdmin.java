@@ -461,6 +461,7 @@ public class ControllerViewTripsAdmin implements Initializable {
 		        button.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
 		        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
+		        //Lógica para replanificar el viaje
 		        button.setOnAction(event -> {
 		            Trip trip = getTableView().getItems().get(getIndex());
 		            ResourceManager.getInstance().getMenuController().openTripReschedule(trip);
