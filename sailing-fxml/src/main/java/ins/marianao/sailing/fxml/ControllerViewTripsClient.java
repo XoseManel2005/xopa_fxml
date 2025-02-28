@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import cat.institutmarianao.sailing.ws.model.Action;
 import cat.institutmarianao.sailing.ws.model.Trip;
 import cat.institutmarianao.sailing.ws.model.TripType;
 import cat.institutmarianao.sailing.ws.model.Trip.Status;
@@ -57,6 +58,8 @@ public class ControllerViewTripsClient implements Initializable {
     @FXML private TableColumn<Trip, String> colStatus;
     @FXML private TableColumn<Trip, String> colDate;
     @FXML private TableColumn<Trip, String> colDeparture;
+    @FXML
+	private TableColumn<Trip, String> colComents;
     @FXML private TableColumn<Trip, Boolean> colCancel;
     
     private ResourceBundle resource;
@@ -215,6 +218,24 @@ public class ControllerViewTripsClient implements Initializable {
         colIndex.setCellValueFactory(cellData ->
             new SimpleLongProperty(tripsTable.getItems().indexOf(cellData.getValue()) + 1)
         );
+        
+        this.colComents.setMinWidth(100);
+		this.colComents.setMaxWidth(Double.MAX_VALUE);
+		this.colComents.setCellValueFactory(
+				new Callback<TableColumn.CellDataFeatures<Trip, String>, ObservableValue<String>>() {
+
+					@Override
+					public ObservableValue<String> call(TableColumn.CellDataFeatures<Trip, String> trip) {
+						List<Action> tripComent = trip.getValue().getTracking();
+						for (Action tripComent1 : tripComent) {
+							System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAction de trip" + tripComent1.getInfo());
+							if (tripComent1.getInfo()!=null && !tripComent1.getInfo().trim().isEmpty()) {
+								return new SimpleStringProperty(tripComent1.getInfo());
+							}
+						}
+						return null;
+					}
+				});
 
         // Configurar columna Cancel (ya definida)
         this.colCancel.setMinWidth(50);
