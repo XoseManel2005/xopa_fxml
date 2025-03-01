@@ -2,6 +2,7 @@ package ins.marianao.sailing.fxml;
 
 import java.awt.Window.Type;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -21,10 +22,12 @@ import ch.qos.logback.core.joran.conditional.IfAction;
 import cat.institutmarianao.sailing.ws.model.TripType.Category;
 import ins.marianao.sailing.fxml.manager.ResourceManager;
 import ins.marianao.sailing.fxml.services.ServiceSaveAction;
+import ins.marianao.sailing.fxml.services.ServiceSaveTrip;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -34,7 +37,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
-public class ControllerReschedulingTrip {
+public class ControllerReserveTrip {
 
 	@FXML
 	private Button btnCancel;
@@ -44,27 +47,25 @@ public class ControllerReschedulingTrip {
 
 	@FXML
 	private ComboBox<String> cbDeparture;
-
+	
 	@FXML
 	private DatePicker dpDate;
 
 	@FXML
-	private TextField tfReason;
+	private TextField tfPlaces;
 
 	@FXML
 	private BorderPane viewTripsDirectory;
 
-	Trip trip = null;
+	TripType trip = null;
 
-	public void loadTrip(Trip trip) {
+	public void loadTripType(TripType trip) {
 		this.trip = trip;
 		System.out.println("Trip recibido correctamente" + trip);
-		System.out.println(trip.getDeparture().getTripType().getDepartures());
-		System.out.println(trip.getDeparture().getTripType());
 
 		// Configuración del cmbStatus
 		ObservableList<String> departures = FXCollections.observableArrayList();
-		String departuresString = trip.getDeparture().getTripType().getDepartures();
+		String departuresString = trip.getDepartures();
 		if (departuresString != null && !departuresString.isEmpty()) {
 			String[] departuresArray = departuresString.split(";");
 			departures.addAll(Arrays.asList(departuresArray));
@@ -77,8 +78,8 @@ public class ControllerReschedulingTrip {
 	void cancel(ActionEvent event) {
 
 		boolean result = ControllerMenu.showConfirm(
-				ResourceManager.getInstance().getText("Cancel rescheduling"),
-				ResourceManager.getInstance().getText("Are you sure you want to cancel??"));
+				ResourceManager.getInstance().getText("fxml.text.viewUsers.delete.title"),
+				ResourceManager.getInstance().getText("fxml.text.viewUsers.delete.text"));
 		if (result) {
 			if (result) {
 				((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
@@ -88,51 +89,70 @@ public class ControllerReschedulingTrip {
 
 	Date departureTime = null;
 	@FXML
-	void submit(ActionEvent event) {
-		String reason = this.tfReason.getText();
+	void confirm(ActionEvent event) {
+		Integer places = validarCampoEntero(tfPlaces.getText(), Integer.MAX_VALUE);
 		String departure = this.cbDeparture.getValue();
 		LocalDate dateLocal = dpDate.getValue();
 
 		// Validaciones existentes
 		if (dateLocal == null) {
-			ControllerMenu.showError("Error", "La fecha no puede estar vacia.");
-			return;
+		    ControllerMenu.showError("Error", "La fecha no puede estar vacia.");
+		    return;
 		} else if (dateLocal.isBefore(LocalDate.now())) {
-			ControllerMenu.showError("Error", "La fecha no puede ser anterior a la fecha actual");
-			return;
+		    ControllerMenu.showError("Error", "La fecha no puede ser anterior a la fecha actual");
+		    return;
 		}
 
-		// Formatear fecha exactamente como espera el servidor
+		// Formatear la fecha 
 		Date formatedDate = Date.from(dateLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
+		Date departureDate = null;
 		if (departure != null && !departure.isEmpty()) {
-			if (departure.length() > 2 && Character.isDigit(departure.charAt(0))) {
-				int indexOfColon = departure.indexOf(':');
-				if (indexOfColon == 1) {
-					departure = "0" + departure;
-				}
-			}
-			LocalTime time = LocalTime.parse(departure);
-			departureTime = java.sql.Time.valueOf(time);
+		    if (departure.length() > 2 && Character.isDigit(departure.charAt(0))) {
+		        int indexOfColon = departure.indexOf(':');
+		        if (indexOfColon == 1) {
+		            departure = "0" + departure;
+		        }
+		    }
+		    LocalTime time = LocalTime.parse(departure);
+		    LocalDateTime departureDateTime = LocalDateTime.of(dateLocal, time);
+		    departureDate = Date.from(departureDateTime.atZone(ZoneId.systemDefault()).toInstant());
 		}
+		Departure newDeparture;
+		if (departureDate==null) {
+			newDeparture = Departure.builder().tripType(trip).date(formatedDate).departure(formatedDate).build();
+		}else {
+			newDeparture = Departure.builder().tripType(trip).date(formatedDate).departure(departureDate).build();
+		}
+		
+		
+		Trip newTrip = Trip.builder().client((Client) ResourceManager.getInstance().getCurrentUser()).departure(newDeparture).places(places).build();
 
-		Action newAction = Rescheduling.builder().type(Action.Type.valueOf(Action.RESCHEDULING)).idTrip(trip.getId())
-				.reason(reason).date(new Date()) // Fecha actual
-				.oldDate(trip.getDeparture().getDate()) // Fecha original
-				.oldDeparture(trip.getDeparture().getDeparture()) // Hora original
-				.performer(ResourceManager.getInstance().getCurrentUser())
-				.trip(trip)
-				.newDate(formatedDate)
-				.newDeparture(departureTime) // Nueva hora formateada
-				.build();
 		
 
-		ServiceSaveAction addAction;
+		ServiceSaveTrip addTrip;
 		try {
-			addAction = new ServiceSaveAction(newAction);
-			addAction.start();
+			addTrip = new ServiceSaveTrip(newTrip);
+			addTrip.setOnSucceeded(e -> {
+	            ControllerMenu.showInfo("Reserved", "trip has been reserved.");
+	            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
+	        });
+	        
+			addTrip.setOnFailed(e -> {
+	            Throwable exception = addTrip.getException();
+	            String errorMessage = (exception != null) ? exception.getMessage() : "Error desconocido";
+	            ControllerMenu.showError("Error en el registro", errorMessage, "");
+	        });
+			addTrip.start();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	private Integer validarCampoEntero(String texto, int valorPorDefecto) {
+		try {
+			return texto == null || texto.trim().isEmpty() ? valorPorDefecto : Integer.parseInt(texto);
+		} catch (NumberFormatException e) {
+			return valorPorDefecto;
 		}
 	}
 

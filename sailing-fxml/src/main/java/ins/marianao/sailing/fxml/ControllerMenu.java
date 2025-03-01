@@ -16,6 +16,7 @@ import com.itextpdf.styledxmlparser.exceptions.StyledXMLParserException;
 import cat.institutmarianao.sailing.ws.model.Admin;
 import cat.institutmarianao.sailing.ws.model.Client;
 import cat.institutmarianao.sailing.ws.model.Trip;
+import cat.institutmarianao.sailing.ws.model.TripType;
 import cat.institutmarianao.sailing.ws.model.User;
 import cat.institutmarianao.sailing.ws.model.User.Role;
 import ins.marianao.sailing.fxml.exception.OnFailedEventHandler;
@@ -130,6 +131,7 @@ public class ControllerMenu implements Initializable {
 	public void logoffClick(ActionEvent event) {
 
 		this.logOff();
+		loginMenuClick();
 	}
 
 	/**
@@ -547,6 +549,36 @@ public class ControllerMenu implements Initializable {
 	        // Ahora sí obtener el controlador
 	        ControllerCancelTrip controllerCancelTrip = loader.getController();
 	        controllerCancelTrip.loadTrip(trip); // cargar perfil
+	        
+	        Scene scene = new Scene(vista);
+	        
+	        // Configurar la escena y mostrar
+	        dialogStage.setScene(scene);
+	        dialogStage.showAndWait(); // Esperar hasta que se cierre
+	        
+	    } catch (Exception e) {
+	        ControllerMenu.showError(ResourceManager.getInstance().getText("error.menu.view.opening"), 
+	                e.getMessage(), ExceptionUtils.getStackTrace(e));
+	    }
+	}
+	
+	public void openReserveTrip(TripType trip) {
+	    try {
+	        // Crear nuevo Stage
+	        Stage dialogStage = new Stage();
+	        // Configurar el modo modal
+	        dialogStage.initModality(Modality.APPLICATION_MODAL);
+	        dialogStage.initOwner(this.stage); // Asignar propietario
+	        
+	        // Cargar el FXML
+	        FXMLLoader loader = new FXMLLoader(getClass().getResource("ViewReserveTrip.fxml"),
+	                ResourceManager.getInstance().getTranslationBundle());
+	        
+	        BorderPane vista = (BorderPane) loader.load(); // Primero cargar el FXML
+	        
+	        // Ahora sí obtener el controlador
+	        ControllerReserveTrip controllerRereserveTrip = loader.getController();
+	        controllerRereserveTrip.loadTripType(trip); // cargar perfil
 	        
 	        Scene scene = new Scene(vista);
 	        

@@ -247,7 +247,6 @@ public class ControllerViewTripsAdmin implements Initializable {
 			}
 		});
 
-		// Agregar listener para recargar los viajes cuando cambia el estado
 		cmbStatus.valueProperty().addListener((observable, oldValue, newValue) -> {
 			reloadTrips();
 		});
@@ -386,7 +385,6 @@ public class ControllerViewTripsAdmin implements Initializable {
 					public ObservableValue<String> call(TableColumn.CellDataFeatures<Trip, String> trip) {
 						List<Action> tripComent = trip.getValue().getTracking();
 						for (Action tripComent1 : tripComent) {
-							System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAction de trip" + tripComent1.getInfo());
 							if (tripComent1.getInfo()!=null && !tripComent1.getInfo().trim().isEmpty()) {
 								return new SimpleStringProperty(tripComent1.getInfo());
 							}
@@ -398,8 +396,6 @@ public class ControllerViewTripsAdmin implements Initializable {
 //		Columna Cancel
 		this.colCancel.setMinWidth(50);
 		this.colCancel.setMaxWidth(70);
-		// define a simple boolean cell value for the action column so that the column
-		// will only be shown for non-empty rows.
 		this.colCancel.setCellValueFactory(
 				new Callback<TableColumn.CellDataFeatures<Trip, Boolean>, ObservableValue<Boolean>>() {
 					@Override
@@ -554,27 +550,24 @@ public class ControllerViewTripsAdmin implements Initializable {
 		System.out.println("Converted fromDate: " + fromDateConverted);
 		System.out.println("Converted toDate: " + toDateConverted);
 
-		// Convertir el estado y la categoría a arrays
 		Status[] statusArray = (status != null) ? new Status[] { status } : new Status[0];
 		Category[] categoryArray = (category != null) ? new Category[] { category } : new Category[0];
 
-		// Crear el servicio de consulta de viajes con los parámetros de búsqueda
+		// Crear el servicio
 		final ServiceQueryTrips queryTrips = new ServiceQueryTrips(statusArray, categoryArray, clientName,
 				fromDateConverted, toDateConverted);
 
-		// Configurar el manejador de éxito de la consulta
 		queryTrips.setOnSucceeded(event -> {
 			tripsTable.setEditable(true);
 			tripsTable.getItems().clear();
 
-			// Obtener la lista de viajes y establecerla en la tabla (evitar null)
+			// Obtener la lista de viajes
 			List<Trip> resultTrips = queryTrips.getValue();
 			if (resultTrips != null) {
 				tripsTable.setItems(FXCollections.observableArrayList(resultTrips));
 			}
 		});
 
-		// Configurar el manejador de fallo de la consulta
 		queryTrips.setOnFailed(
 				new OnFailedEventHandler(ResourceManager.getInstance().getText("error.viewTrips.web.service")));
 

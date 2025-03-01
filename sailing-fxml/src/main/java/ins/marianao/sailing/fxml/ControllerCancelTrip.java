@@ -20,7 +20,7 @@ import cat.institutmarianao.sailing.ws.model.User;
 import ch.qos.logback.core.joran.conditional.IfAction;
 import cat.institutmarianao.sailing.ws.model.TripType.Category;
 import ins.marianao.sailing.fxml.manager.ResourceManager;
-import ins.marianao.sailing.fxml.services.ServiceSaveTrip;
+import ins.marianao.sailing.fxml.services.ServiceSaveAction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -74,7 +74,6 @@ public class ControllerCancelTrip {
 	    
 	   
 	    
-	    // Crear Action con todos los campos obligatorios
 	    Action newAction = Rescheduling.builder()
 	        .type(Action.Type.valueOf(Action.CANCELLATION))
 	        .idTrip(trip.getId())
@@ -84,17 +83,15 @@ public class ControllerCancelTrip {
 	        .trip(trip)
 	        .build();
 	    
-	    ServiceSaveTrip addAction;
+	    ServiceSaveAction addAction;
 	    try {
-	        addAction = new ServiceSaveTrip(newAction);
+	        addAction = new ServiceSaveAction(newAction);
 	        
-	        // Manejar el éxito
 	        addAction.setOnSucceeded(e -> {
-	            ControllerMenu.showInfo("Canceled", "El trip se ha cancelado.");
+	            ControllerMenu.showInfo("Canceled", "The trip has been canceled.");
 	            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
 	        });
 	        
-	        // Manejar el fallo
 	        addAction.setOnFailed(e -> {
 	            Throwable exception = addAction.getException();
 	            System.out.println(newAction);

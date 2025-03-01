@@ -1,16 +1,18 @@
 package ins.marianao.sailing.fxml.services;
 
+import cat.institutmarianao.sailing.ws.model.Action;
+import cat.institutmarianao.sailing.ws.model.Rescheduling;
 import cat.institutmarianao.sailing.ws.model.Trip;
 import cat.institutmarianao.sailing.ws.model.User;
 import ins.marianao.sailing.fxml.manager.ResourceManager;
 
-public class ServiceSaveTrip extends ServiceSaveBase<Trip>{
+public class ServiceSaveAction extends ServiceSaveBase<Action>{
 
-	private static final String PATH_UPDATE= "/save";
+	private static final String PATH_UPDATE= "/save/action";
 
-    public ServiceSaveTrip(Trip newTrip) throws Exception {
+    public ServiceSaveAction(Action newAction) throws Exception {
     	
-        super(newTrip, Trip.class, new String[]{
+        super(newAction, Action.class, new String[]{
         		ServiceQueryTrips.PATH_QUERY_UPDATE, PATH_UPDATE
         		}, Method.POST, shouldRequireAuth());
     }

@@ -30,6 +30,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -66,35 +67,29 @@ public class ControllerViewTripsTypes implements Initializable {
 	private HBox HboxTripsTypes;
 
 	private ResourceBundle resource;
-	private GridPane gridPane; // Variable para mantener el gridPane
+	private GridPane gridPane;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		// Guardar el ResourceBundle en una variable de clase
 		this.resource = resources;
 
-		// Crear el gridPane una sola vez
 		gridPane = new GridPane();
 		gridPane.setHgap(10);
 		gridPane.setVgap(10);
 		gridPane.setPadding(new Insets(10));
 
-		// Configurar las columnas para que tengan el mismo ancho
 		ColumnConstraints columnConstraints = new ColumnConstraints();
 		columnConstraints.setPercentWidth(25.0);
 		columnConstraints.setFillWidth(true);
 		columnConstraints.setHgrow(Priority.ALWAYS);
 
-		// Agregar las columnas al grid
 		for (int i = 0; i < 4; i++) {
 			gridPane.getColumnConstraints().add(columnConstraints);
 		}
 
-		// Reemplazar el HBox existente con el GridPane
 		HboxTripsTypes.getChildren().clear();
 		HboxTripsTypes.getChildren().add(gridPane);
 
-		// Configuración de los listeners para los campos numéricos
 		this.tfDurationFrom.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -140,17 +135,14 @@ public class ControllerViewTripsTypes implements Initializable {
 		ObservableList<TripType.Category> categoryList = FXCollections.observableArrayList(TripType.Category.GROUP,
 				TripType.Category.PRIVATE);
 
-		TripType.Category allCategory = null; // all será null para no tneer filtros
+		TripType.Category allCategory = null;
 
-		// Crear la lista con ALL al inicio
 		ObservableList<TripType.Category> categoryListWithAll = FXCollections.observableArrayList();
 		categoryListWithAll.add(allCategory);
 		categoryListWithAll.addAll(categoryList);
 
-		// Asignar la lista al ComboBox
 		cmbCategory.setItems(categoryListWithAll);
 		
-		// Configurar la visualización en el ComboBox
 		cmbCategory.setCellFactory(new Callback<ListView<TripType.Category>, ListCell<TripType.Category>>() {
 			@Override
 			public ListCell<TripType.Category> call(ListView<TripType.Category> param) {
@@ -168,12 +160,11 @@ public class ControllerViewTripsTypes implements Initializable {
 			}
 		});
 
-		// Configurar el StringConverter para manejar "ALL"
 		cmbCategory.setConverter(new StringConverter<TripType.Category>() {
 			@Override
 			public String toString(TripType.Category category) {
 				if (category == null) {
-					return resource.getString("text.Category.ALL"); // Mostrar "ALL" si es null
+					return resource.getString("text.Category.ALL"); 
 				}
 				return resource.getString("text.Category." + category.name());
 			}
@@ -181,7 +172,6 @@ public class ControllerViewTripsTypes implements Initializable {
 			@Override
 			public TripType.Category fromString(String string) {
 				if (string.equals(resource.getString("text.Category.ALL"))) {
-					return null; // Representamos "ALL" como null
 				}
 				return categoryList.stream()
 						.filter(cat -> resource.getString("text.Category." + cat.name()).equals(string)).findFirst()
@@ -190,7 +180,6 @@ public class ControllerViewTripsTypes implements Initializable {
 		});
 
 
-		// Agregar listener para recargar los viajes cuando cambia el estado
 		cmbCategory.valueProperty().addListener((observable, oldValue, newValue) -> {
 			reloadTripsTypes();
 		});
@@ -199,52 +188,33 @@ public class ControllerViewTripsTypes implements Initializable {
 	}
 
 	private void reloadTripsTypes() {
-		// Obtener los valores seleccionados de los ComboBox y DatePicker
 		Category category = cmbCategory.getValue();
 
-		// Validar campos numéricos con valores por defecto
 		Double priceFrom = validarCampoNumerico(tfPriceFrom.getText(), 0.0);
 		Double priceTo = validarCampoNumerico(tfPriceTo.getText(), Double.MAX_VALUE);
 		Integer placesFrom = validarCampoEntero(tfPlacesFrom.getText(), 0);
-		Integer placesTo = validarCampoEntero(tfPlacesFrom.getText(), Integer.MAX_VALUE);
+		Integer placesTo = validarCampoEntero(tfPlacesTo.getText(), Integer.MAX_VALUE);
 		Integer durationFrom = validarCampoEntero(tfDurationFrom.getText(), 0);
-		Integer durationTo = validarCampoEntero(tfDurationFrom.getText(), Integer.MAX_VALUE);
-
-		// Convertir el estado y la categoría a arrays si es necesario
+		Integer durationTo = validarCampoEntero(tfDurationTo.getText(), Integer.MAX_VALUE);
+		
 		Category[] categoryArray = category != null ? new Category[] { category } : null;
 
-		// Crear el servicio de consulta de viajes con los parámetros de búsqueda
+		// Crear el servicio de consulta de viajes
 		final ServiceQueryTripsTypes queryTripsTypes = new ServiceQueryTripsTypes(categoryArray, priceFrom, priceTo,
 				placesFrom, placesTo, durationTo, durationFrom);
-
-		// Configurar el manejador de éxito de la consulta
 		queryTripsTypes.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent t) {
 				ObservableList<TripType> tripTypes = FXCollections.observableArrayList(queryTripsTypes.getValue());
-
-				// Limpiar el gridPane existente
 				gridPane.getChildren().clear();
-
 				int rowIndex = 0;
-
 				for (TripType tripType : tripTypes) {
 					VBox vBoxContainer = createListViewForType(tripType);
-
-					// Configurar el contenedor para que se adapte al espacio disponible
 					vBoxContainer.setMaxWidth(Double.MAX_VALUE);
 					vBoxContainer.setFillWidth(true);
-
-					// Calcular la columna (0-3)
 					int columnIndex = rowIndex % 4;
-
-					// Calcular la fila (cada 4 elementos)
 					int row = rowIndex / 4;
-
-					// Agregar el contenedor al grid
 					gridPane.add(vBoxContainer, columnIndex, row);
-
-					// Configurar el crecimiento horizontal
 					GridPane.setHgrow(vBoxContainer, Priority.ALWAYS);
 
 					rowIndex++;
@@ -252,7 +222,6 @@ public class ControllerViewTripsTypes implements Initializable {
 			}
 		});
 
-		// Configurar el manejador de fallo de la consulta
 		queryTripsTypes.setOnFailed(
 				new OnFailedEventHandler(ResourceManager.getInstance().getText("error.viewTripTypes.web.service")));
 
@@ -261,27 +230,40 @@ public class ControllerViewTripsTypes implements Initializable {
 	}
 
 	private VBox createListViewForType(TripType tripType) {
-		ListView<String> listView = new ListView<>();
+	    ListView<String> listView = new ListView<>();
 
-		// Agregar elementos a la lista con detalles del TripType
-		ObservableList<String> tripDetails = FXCollections.observableArrayList();
-		tripDetails.add(tripType.getCategory().toString());
-		tripDetails.add(tripType.getTitle());
-		tripDetails.add("Max Places: " + tripType.getMaxPlaces());
-		tripDetails.add("Price: " + tripType.getPrice());
-		tripDetails.add("Duration: " + tripType.getDuration());
-		tripDetails.add("Departures \n ----------------------------- \n " + tripType.getDepartures());
+	    ObservableList<String> tripDetails = FXCollections.observableArrayList();
+	    tripDetails.add(tripType.getCategory().toString());
+	    tripDetails.add(tripType.getTitle());
+	    tripDetails.add("Max Places: " + tripType.getMaxPlaces());
+	    tripDetails.add("Price: " + tripType.getPrice());
+	    tripDetails.add("Duration: " + tripType.getDuration());
+	    tripDetails.add("Departures \n ----------------------------- \n " + tripType.getDepartures());
 
-		listView.setItems(tripDetails);
+	    listView.setItems(tripDetails);
 
-		Label label = new Label(tripType.getTitle());
+	   
+	    listView.setMinHeight(200); 
+	    
+	    listView.setPrefHeight(tripDetails.size() * 24);
 
-		VBox container = new VBox(label, listView);
-		container.setStyle("-fx-border-color: grey; -fx-border-width: 2; -fx-padding: 10; -fx-border-radius: 10");
-		container.setAlignment(Pos.CENTER);
+	    Label label = new Label(tripType.getTitle());
 
-		return container;
+	    // Crear el botón que aparecerá debajo del ListView
+	    Button moreInfoButton = new Button("RESERVE");
+	    moreInfoButton.setOnAction(e -> {
+	    	ResourceManager.getInstance().getMenuController().openReserveTrip(tripType);
+	    });
+
+	    VBox container = new VBox(label, listView, moreInfoButton);
+	    container.setSpacing(10);
+	    container.setStyle("-fx-border-color: grey; -fx-border-width: 2; -fx-padding: 10; -fx-border-radius: 10");
+	    container.setAlignment(Pos.CENTER);
+
+	    return container;
 	}
+
+
 
 	private Double validarCampoNumerico(String texto, double valorPorDefecto) {
 		try {

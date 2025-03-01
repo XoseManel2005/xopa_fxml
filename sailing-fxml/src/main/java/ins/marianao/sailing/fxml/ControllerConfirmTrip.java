@@ -5,7 +5,7 @@ import cat.institutmarianao.sailing.ws.model.Action;
 import cat.institutmarianao.sailing.ws.model.Rescheduling;
 import cat.institutmarianao.sailing.ws.model.Trip;
 import ins.marianao.sailing.fxml.manager.ResourceManager;
-import ins.marianao.sailing.fxml.services.ServiceSaveTrip;
+import ins.marianao.sailing.fxml.services.ServiceSaveAction;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -19,8 +19,6 @@ public class ControllerConfirmTrip {
 	@FXML
 	private Button btnCancel;
 
-	
-	
 	@FXML
 	private Button btnSubmit;
 
@@ -41,8 +39,8 @@ public class ControllerConfirmTrip {
 	void cancel(ActionEvent event) {
 
 		boolean result = ControllerMenu.showConfirm(
-				ResourceManager.getInstance().getText("fxml.text.viewUsers.delete.title"),
-				ResourceManager.getInstance().getText("fxml.text.viewUsers.delete.text"));
+				ResourceManager.getInstance().getText("Cancel done"),
+				ResourceManager.getInstance().getText("Are you sure you want to cancel??"));
 		if (result) {
 			if (result) {
 				((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
@@ -54,21 +52,19 @@ public class ControllerConfirmTrip {
 	void submit(ActionEvent event) {
 		String reason = this.tfReason.getText().trim();
 
-		// Crear Action con todos los campos obligatorios
+		// Crear Action 
 		Action newAction = Rescheduling.builder().type(Action.Type.valueOf(Action.DONE)).idTrip(trip.getId())
 				.date(new Date()).performer(ResourceManager.getInstance().getCurrentUser()).trip(trip).build();
 
-		ServiceSaveTrip addAction;
+		ServiceSaveAction addAction;
 		try {
-			addAction = new ServiceSaveTrip(newAction);
+			addAction = new ServiceSaveAction(newAction);
 
-			// Manejar el éxito
 			addAction.setOnSucceeded(e -> {
-				ControllerMenu.showInfo("Done", "El trip se ha confirmado.");
+				ControllerMenu.showInfo("Done", "El trip has been done.");
 				((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
 			});
-
-			// Manejar el fallo
+			
 			addAction.setOnFailed(e -> {
 				Throwable exception = addAction.getException();
 				System.out.println(newAction);
