@@ -82,7 +82,14 @@ public class ServiceQueryTripsTypes extends ServiceQueryBase<TripType> {
             webTarget = webTarget.queryParam("category", categoriesStr);
         }
 
-        Invocation.Builder invocationBuilder = ResourceManager.getInstance().getAuthRequestBuilder(webTarget, true);
+        Invocation.Builder invocationBuilder;
+        if (ResourceManager.getInstance().getCurrentUser() == null) {
+            // Usuario no logueado, no se añade autenticación.
+            invocationBuilder = webTarget.request();
+        } else {
+            // Usuario logueado, se añade autenticación.
+            invocationBuilder = ResourceManager.getInstance().getAuthRequestBuilder(webTarget, true);
+        }
 
         try {
             Response response = invocationBuilder.get();

@@ -78,13 +78,12 @@ public class ControllerViewTripsTypes implements Initializable {
 		gridPane.setVgap(10);
 		gridPane.setPadding(new Insets(10));
 
-		ColumnConstraints columnConstraints = new ColumnConstraints();
-		columnConstraints.setPercentWidth(25.0);
-		columnConstraints.setFillWidth(true);
-		columnConstraints.setHgrow(Priority.ALWAYS);
-
 		for (int i = 0; i < 4; i++) {
-			gridPane.getColumnConstraints().add(columnConstraints);
+		    ColumnConstraints cc = new ColumnConstraints();
+		    cc.setPercentWidth(25.0);
+		    cc.setFillWidth(true);
+		    cc.setHgrow(Priority.ALWAYS);
+		    gridPane.getColumnConstraints().add(cc);
 		}
 
 		HboxTripsTypes.getChildren().clear();
@@ -231,7 +230,6 @@ public class ControllerViewTripsTypes implements Initializable {
 
 	private VBox createListViewForType(TripType tripType) {
 	    ListView<String> listView = new ListView<>();
-
 	    ObservableList<String> tripDetails = FXCollections.observableArrayList();
 	    tripDetails.add(tripType.getCategory().toString());
 	    tripDetails.add(tripType.getTitle());
@@ -239,30 +237,28 @@ public class ControllerViewTripsTypes implements Initializable {
 	    tripDetails.add("Price: " + tripType.getPrice());
 	    tripDetails.add("Duration: " + tripType.getDuration());
 	    tripDetails.add("Departures \n ----------------------------- \n " + tripType.getDepartures());
-
 	    listView.setItems(tripDetails);
 
-	   
 	    listView.setMinHeight(200); 
-	    
 	    listView.setPrefHeight(tripDetails.size() * 24);
 
 	    Label label = new Label(tripType.getTitle());
 
-	    // Crear el botón que aparecerá debajo del ListView
-	    Button moreInfoButton = new Button("RESERVE");
-	    moreInfoButton.setOnAction(e -> {
-	    	ResourceManager.getInstance().getMenuController().openReserveTrip(tripType);
-	    });
-
-	    VBox container = new VBox(label, listView, moreInfoButton);
+	    VBox container = new VBox(label, listView);
 	    container.setSpacing(10);
 	    container.setStyle("-fx-border-color: grey; -fx-border-width: 2; -fx-padding: 10; -fx-border-radius: 10");
 	    container.setAlignment(Pos.CENTER);
 
+	    if (ResourceManager.getInstance().getCurrentUser() != null) {
+	        Button moreInfoButton = new Button("RESERVE");
+	        moreInfoButton.setOnAction(e -> {
+	            ResourceManager.getInstance().getMenuController().openReserveTrip(tripType);
+	        });
+	        container.getChildren().add(moreInfoButton);
+	    }
+
 	    return container;
 	}
-
 
 
 	private Double validarCampoNumerico(String texto, double valorPorDefecto) {
